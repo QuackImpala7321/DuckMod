@@ -1,0 +1,12 @@
+{
+  "item.duckmod.duck_ingot": "Duck Ingot",
+
+  "item.duckmod.duck": "Raw Duck",
+  "item.duckmod.cooked_duck": "Cooked Duck",
+
+  "item.duckmod.ducky_sword": "Ducky Sword",
+  "item.duckmod.ducky_pickaxe": "Ducky Pickaxe",
+  "item.duckmod.ducky_shovel": "Ducky Shovel",
+
+  "itemGroup.duckmod.duck": "Duck"
+}
