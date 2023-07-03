@@ -1,0 +1,17 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "duckmod:block/egg_incubator"
+      }
+    },
+    {
+      "apply": {
+        "model": "duckmod:block/incubated_egg"
+      },
+      "when": {
+        "has_egg": "true"
+      }
+    }
+  ]
+}

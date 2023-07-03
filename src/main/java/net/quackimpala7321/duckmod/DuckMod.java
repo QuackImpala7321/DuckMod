@@ -2,6 +2,8 @@ package net.quackimpala7321.duckmod;
 
 import net.fabricmc.api.ModInitializer;
 
+import net.quackimpala7321.duckmod.block.ModBlockEntities;
+import net.quackimpala7321.duckmod.block.ModBlocks;
 import net.quackimpala7321.duckmod.item.ModItemGroups;
 import net.quackimpala7321.duckmod.item.ModItems;
 import org.slf4j.Logger;
@@ -14,6 +16,8 @@ public class DuckMod implements ModInitializer {
     @Override
     public void onInitialize() {
         ModItems.registerModItems();
+        ModBlocks.registerModBlocks();
+        ModBlockEntities.registerModBlockEntities();
         ModItemGroups.registerItemGroups();
     }
 }

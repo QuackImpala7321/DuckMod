@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "duck_ingot",
+  "ingredients": [
+    {
+      "item": "duckmod:duck_block"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "item": "duckmod:duck_ingot"
+  }
+}

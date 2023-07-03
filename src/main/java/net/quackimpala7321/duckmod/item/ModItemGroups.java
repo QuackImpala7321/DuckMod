@@ -1,14 +1,13 @@
 package net.quackimpala7321.duckmod.item;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.*;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.quackimpala7321.duckmod.DuckMod;
+import net.quackimpala7321.duckmod.block.ModBlocks;
 
 public class ModItemGroups {
     private static final ItemGroup DUCK = Registry.register(Registries.ITEM_GROUP, new Identifier(DuckMod.MOD_ID, "duck"), FabricItemGroup.builder()
@@ -21,6 +20,9 @@ public class ModItemGroups {
                         entries.add(ModItems.DUCKY_SHOVEL);
                         entries.add(ModItems.DUCK);
                         entries.add(ModItems.COOKED_DUCK);
+                        entries.add(ModBlocks.DUCK_BLOCK);
+                        entries.add(ModBlocks.DUCK_ORE);
+                        entries.add(ModBlocks.EGG_INCUBATOR);
                     }))
             .build());
 

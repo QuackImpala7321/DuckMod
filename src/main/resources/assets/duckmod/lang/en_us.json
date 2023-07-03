@@ -8,5 +8,10 @@
   "item.duckmod.ducky_pickaxe": "Ducky Pickaxe",
   "item.duckmod.ducky_shovel": "Ducky Shovel",
 
+  "block.duckmod.duck_block": "Duck Block",
+  "block.duckmod.duck_ore": "Duck Ore",
+
+  "block.duckmod.egg_incubator": "Egg Incubator",
+
   "itemGroup.duckmod.duck": "Duck"
 }
