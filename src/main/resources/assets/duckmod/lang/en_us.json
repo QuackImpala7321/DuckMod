@@ -3,15 +3,22 @@
 
   "item.duckmod.duck": "Raw Duck",
   "item.duckmod.cooked_duck": "Cooked Duck",
+  "item.duckmod.duck_egg": "Duck Egg",
 
   "item.duckmod.ducky_sword": "Ducky Sword",
   "item.duckmod.ducky_pickaxe": "Ducky Pickaxe",
   "item.duckmod.ducky_shovel": "Ducky Shovel",
+
+  "item.duckmod.duck_spawn_egg": "Duck Spawn Egg",
 
   "block.duckmod.duck_block": "Duck Block",
   "block.duckmod.duck_ore": "Duck Ore",
 
   "block.duckmod.egg_incubator": "Egg Incubator",
 
-  "itemGroup.duckmod.duck": "Duck"
+  "itemGroup.duckmod.duck": "Duck",
+
+  "entity.duckmod.duck": "Duck",
+
+  "subtitles.duckmod.duck_quack": "Duck Quacks"
 }

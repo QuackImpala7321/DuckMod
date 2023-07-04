@@ -18,7 +18,9 @@ public class ModBlocks {
     public static final Block DUCK_ORE = registerBlock("duck_ore",
             new Block(FabricBlockSettings.copyOf(Blocks.DIAMOND_ORE)));
     public static final Block EGG_INCUBATOR = registerBlock("egg_incubator",
-            new EggIncubatorBlock(FabricBlockSettings.copyOf(Blocks.BREWING_STAND).nonOpaque()));
+            new EggIncubatorBlock(FabricBlockSettings.copyOf(Blocks.BREWING_STAND)
+                    .nonOpaque()
+                    .luminance(state -> state.get(EggIncubatorBlock.AGE) >= EggIncubatorBlock.MAX_AGE ? 15 : 5)));
 
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);

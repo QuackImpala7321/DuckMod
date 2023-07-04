@@ -3,7 +3,7 @@
   "category": "equipment",
   "key": {
     "#": {
-      "item": "minecraft:stick"
+      "item": "duckmod:duck_egg"
     },
     "X": {
       "item": "duckmod:duck_ingot"

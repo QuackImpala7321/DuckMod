@@ -5,6 +5,8 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.quackimpala7321.duckmod.DuckMod;
+import net.quackimpala7321.duckmod.entity.ModEntities;
+import net.quackimpala7321.duckmod.item.custom.DuckEggItem;
 
 
 public class ModItems {
@@ -22,6 +24,11 @@ public class ModItems {
             new Item(new FabricItemSettings().food(FoodComponents.COOKED_CHICKEN)));
     public static final Item DUCK = registerItem("duck",
             new Item(new FabricItemSettings().food(FoodComponents.CHICKEN)));
+    public static final Item DUCK_EGG = registerItem("duck_egg",
+            new DuckEggItem(new FabricItemSettings().maxCount(16)));
+
+    public static final Item DUCK_SPAWN_EGG = registerItem("duck_spawn_egg",
+            new SpawnEggItem(ModEntities.DUCK_ENTITY, 0x36A312, 0xEFAC28, new FabricItemSettings()));
 
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, new Identifier(DuckMod.MOD_ID, name), item);

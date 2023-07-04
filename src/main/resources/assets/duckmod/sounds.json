@@ -1,0 +1,8 @@
+{
+  "duck_quack": {
+    "subtitle": "subtitles.duckmod.duck_quack",
+    "sounds": [
+      "duckmod:duck_quack"
+    ]
+  }
+}

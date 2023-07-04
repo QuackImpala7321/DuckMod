@@ -23,6 +23,8 @@ public class ModItemGroups {
                         entries.add(ModBlocks.DUCK_BLOCK);
                         entries.add(ModBlocks.DUCK_ORE);
                         entries.add(ModBlocks.EGG_INCUBATOR);
+                        entries.add(ModItems.DUCK_EGG);
+                        entries.add(ModItems.DUCK_SPAWN_EGG);
                     }))
             .build());
 
