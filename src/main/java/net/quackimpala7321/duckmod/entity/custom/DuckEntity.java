@@ -10,8 +10,12 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.mob.CreeperEntity;
+import net.minecraft.entity.mob.GhastEntity;
+import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -54,10 +58,11 @@ public class DuckEntity extends TameableEntity {
     );
 
     private static final float WILD_MAX_HEALTH = 4.0f;
-    private static final double WILD_DAMAGE = 2.0;
+    private static final float WILD_DAMAGE = 2.0f;
     private static final float WILD_SPEED = 0.3f;
-    private static final float TAMED_MAX_HEALTH = 16.0f;
-    private static final float TAMED_DAMAGE = 4.0f;
+
+    private static final float TAMED_MAX_HEALTH = 20.0f;
+    public static final float TAMED_DAMAGE = 4.0f;
     private static final float TAMED_SPEED = 0.35f;
 
     private static final TrackedData<Boolean> SITTING =
@@ -82,7 +87,7 @@ public class DuckEntity extends TameableEntity {
     protected void initGoals() {
         this.goalSelector.add(0, new SwimGoal(this));
         this.goalSelector.add(1, new SitGoal(this));
-        this.goalSelector.add(2, new PounceAtTargetGoal(this, 0.6f));
+        this.goalSelector.add(2, new DuckPounceGoal(this, 0.6f, TAMED_DAMAGE));
         this.goalSelector.add(3, new MeleeAttackGoal(this, 1.5, true));
         this.goalSelector.add(4, new FollowOwnerGoal(this, 1.0, 10.0f, 2.0f, false));
         this.goalSelector.add(5, new EscapeDangerGoal(this, 1.4));
@@ -94,6 +99,7 @@ public class DuckEntity extends TameableEntity {
         this.goalSelector.add(10, new LookAroundGoal(this));
         this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
         this.targetSelector.add(2, new AttackWithOwnerGoal(this));
+        this.targetSelector.add(3, new RevengeGoal(this));
     }
 
     @Override
@@ -132,6 +138,24 @@ public class DuckEntity extends TameableEntity {
     }
 
     @Override
+    public boolean canAttackWithOwner(LivingEntity target, LivingEntity owner) {
+        if (target instanceof CreeperEntity || target instanceof GhastEntity) {
+            return false;
+        }
+        if (target instanceof WolfEntity) {
+            DuckEntity duckEntity = (DuckEntity) target;
+            return !duckEntity.isTamed() || duckEntity.getOwner() != owner;
+        }
+        if (target instanceof PlayerEntity && owner instanceof PlayerEntity && !((PlayerEntity)owner).shouldDamagePlayer((PlayerEntity)target)) {
+            return false;
+        }
+        if (target instanceof AbstractHorseEntity && ((AbstractHorseEntity)target).isTame()) {
+            return false;
+        }
+        return !(target instanceof TameableEntity) || !((TameableEntity)target).isTamed();
+    }
+
+    @Override
     public void setTamed(boolean tamed) {
         super.setTamed(tamed);
         if (tamed) {
@@ -159,7 +183,7 @@ public class DuckEntity extends TameableEntity {
         this.flapSpeed *= 0.9f;
         Vec3d vec3d = this.getVelocity();
         if (!this.isOnGround() && vec3d.y < 0.0) {
-            this.setVelocity(vec3d.multiply(1.0, isTamed() ? 1.0 : 0.6, 1.0));
+            this.setVelocity(vec3d.multiply(1.0, isTamed() && getTarget() != null ? 1.0 : 0.6, 1.0));
         }
         this.flapProgress += this.flapSpeed * 2.0f;
         if (!this.getWorld().isClient && this.isAlive() && !this.isBaby() && --this.eggLayTime <= 0) {
@@ -223,7 +247,7 @@ public class DuckEntity extends TameableEntity {
     @Nullable
     @Override
     protected SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_CHICKEN_DEATH;
+        return ModSoundEvents.DUCK_DEATH_SOUND_EVENT;
     }
 
     @Override

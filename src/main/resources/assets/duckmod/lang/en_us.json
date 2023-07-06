@@ -20,5 +20,6 @@
 
   "entity.duckmod.duck": "Duck",
 
-  "subtitles.duckmod.duck_quack": "Duck Quacks"
+  "subtitles.duckmod.entity.duck.quack": "Duck Quacks",
+  "subtitles.duckmod.entity.duck.death": "Duck Dies"
 }
