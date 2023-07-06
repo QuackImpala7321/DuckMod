@@ -214,7 +214,7 @@ public class DuckEntity extends TameableEntity {
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
         nbt.putInt("EggLayTime", this.eggLayTime);
-        nbt.putBoolean("isSitting", nbt.getBoolean("isSitting"));
+        nbt.putBoolean("isSitting", this.dataTracker.get(SITTING));
     }
 
     @Override
