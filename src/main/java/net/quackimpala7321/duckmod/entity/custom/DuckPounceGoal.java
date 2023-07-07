@@ -7,6 +7,7 @@ import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
+import net.quackimpala7321.duckmod.ModSoundEvents;
 
 import java.util.List;
 import java.util.function.Predicate;

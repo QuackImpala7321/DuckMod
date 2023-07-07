@@ -7,13 +7,14 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.quackimpala7321.duckmod.DuckMod;
 import net.quackimpala7321.duckmod.entity.custom.DuckEntity;
+import net.quackimpala7321.duckmod.entity.model.custom.DuckEntityModel;
 import net.quackimpala7321.duckmod.entity.renderer.ModEntityRenderers;
 
-public class DuckEntityRenderer extends MobEntityRenderer<DuckEntity, ChickenEntityModel<DuckEntity>> {
+public class DuckEntityRenderer extends MobEntityRenderer<DuckEntity, DuckEntityModel<DuckEntity>> {
     private static final Identifier TEXTURE = new Identifier(DuckMod.MOD_ID, "textures/entity/duck.png");
 
     public DuckEntityRenderer(EntityRendererFactory.Context context) {
-        super(context, new ChickenEntityModel(context.getPart(ModEntityRenderers.DUCK_MODEL_LAYER)), 0.3f);
+        super(context, new DuckEntityModel<>(context.getPart(ModEntityRenderers.DUCK_MODEL_LAYER)), 0.3f);
     }
 
     @Override

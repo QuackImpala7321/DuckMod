@@ -11,5 +11,9 @@
     "sounds": [
       "duckmod:duck_death"
     ]
+  },
+
+  "duck_stomp": {
+    "subtitle": "subtitles.duckmod.entity.duck.stomp"
   }
 }

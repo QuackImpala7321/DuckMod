@@ -15,7 +15,6 @@ import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -126,7 +125,7 @@ public class DuckEntity extends TameableEntity {
             }
         }
 
-        if(isTamed() && !getWorld().isClient && hand == Hand.MAIN_HAND) {
+        if(isTamed() && !getWorld().isClient && isOwner(player) && hand == Hand.MAIN_HAND) {
             setSit(!isSitting());
             return ActionResult.SUCCESS;
         }
@@ -142,7 +141,7 @@ public class DuckEntity extends TameableEntity {
         if (target instanceof CreeperEntity || target instanceof GhastEntity) {
             return false;
         }
-        if (target instanceof WolfEntity) {
+        if (target instanceof DuckEntity) {
             DuckEntity duckEntity = (DuckEntity) target;
             return !duckEntity.isTamed() || duckEntity.getOwner() != owner;
         }
@@ -235,19 +234,19 @@ public class DuckEntity extends TameableEntity {
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
-        return ModSoundEvents.DUCK_QUACK_SOUND_EVENT;
+        return ModSoundEvents.DUCK_QUACK;
     }
 
     @Nullable
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        return ModSoundEvents.DUCK_QUACK_SOUND_EVENT;
+        return ModSoundEvents.DUCK_QUACK;
     }
 
     @Nullable
     @Override
     protected SoundEvent getDeathSound() {
-        return ModSoundEvents.DUCK_DEATH_SOUND_EVENT;
+        return ModSoundEvents.DUCK_DEATH;
     }
 
     @Override

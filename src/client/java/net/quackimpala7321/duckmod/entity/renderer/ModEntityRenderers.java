@@ -7,6 +7,7 @@ import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.util.Identifier;
 import net.quackimpala7321.duckmod.DuckMod;
 import net.quackimpala7321.duckmod.entity.ModEntities;
+import net.quackimpala7321.duckmod.entity.model.custom.DuckEntityModel;
 import net.quackimpala7321.duckmod.entity.renderer.custom.DuckEntityRenderer;
 
 public class ModEntityRenderers {
@@ -17,7 +18,7 @@ public class ModEntityRenderers {
             return new DuckEntityRenderer(ctx);
         });
 
-        EntityModelLayerRegistry.registerModelLayer(DUCK_MODEL_LAYER, ChickenEntityModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(DUCK_MODEL_LAYER, DuckEntityModel::getTexturedModelData);
 
         DuckMod.LOGGER.info("Registering Entity Renderers for " + DuckMod.MOD_ID);
     }
