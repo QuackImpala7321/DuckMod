@@ -11,7 +11,7 @@ public class ModEntitySpawns {
         BiomeModifications.addSpawn(BiomeSelectors.tag(ModBiomeTags.SPAWNS_DUCKS),
                 SpawnGroup.CREATURE,
                 ModEntities.DUCK_ENTITY,
-                10, 1, 4);
+                8, 1, 4);
 
         DuckMod.LOGGER.info("Registering Entity Spawns for " + DuckMod.MOD_ID);
     }
