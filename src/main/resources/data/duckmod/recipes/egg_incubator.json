@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "minecraft:egg"
+    },
+    "G": {
+      "item": "minecraft:green_stained_glass"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "III",
+    "G#G",
+    "III"
+  ],
+  "result": {
+    "item": "duckmod:egg_incubator"
+  },
+  "show_notification": true
+}

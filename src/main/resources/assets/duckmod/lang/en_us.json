@@ -19,7 +19,9 @@
   "itemGroup.duckmod.duck": "Duck",
 
   "entity.duckmod.duck": "Duck",
+  "entity.duckmod.duck_boss": "Duck Boss",
 
-  "subtitles.duckmod.entity.duck.quack": "Duck Quacks",
-  "subtitles.duckmod.entity.duck.death": "Duck Dies"
+  "subtitles.duckmod.entity.duck.quack": "Duck quacks",
+  "subtitles.duckmod.entity.duck.hurt": "Duck hurts",
+  "subtitles.duckmod.entity.duck.death": "Duck dies"
 }

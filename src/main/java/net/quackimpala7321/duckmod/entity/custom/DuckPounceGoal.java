@@ -7,24 +7,23 @@ import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
+import net.quackimpala7321.duckmod.DuckMod;
 import net.quackimpala7321.duckmod.ModSoundEvents;
 
 import java.util.List;
 import java.util.function.Predicate;
 
 public class DuckPounceGoal extends PounceAtTargetGoal {
-    private final TameableEntity mob;
+    private final DuckEntity mob;
     private LivingEntity target;
     private final float velocity;
-    private float damage;
 
     private static final Predicate<Entity> ALLOWED = Entity::isAlive;
 
-    public DuckPounceGoal(TameableEntity mob, float velocity, float damage) {
+    public DuckPounceGoal(DuckEntity mob, float velocity) {
         super(mob, velocity);
         this.mob = mob;
         this.velocity = velocity;
-        this.damage = damage;
     }
 
     @Override
@@ -54,7 +53,8 @@ public class DuckPounceGoal extends PounceAtTargetGoal {
             || mob.isTeammate(livingEntity))
                 continue;
 
-            livingEntity.damage(this.mob.getWorld().getDamageSources().mobAttack(this.mob), this.mob.isTamed() ? 4.0f : 2.0f);
+            livingEntity.damage(this.mob.getWorld().getDamageSources().mobAttack(this.mob), this.mob.getDamage());
+            DuckMod.LOGGER.info("Dealt " + this.mob.getDamage() + " damage!");
         }
     }
 

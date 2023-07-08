@@ -1,5 +1,6 @@
 package net.quackimpala7321.duckmod.entity.custom;
 
+import com.google.gson.JsonObject;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.goal.*;
@@ -32,6 +33,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.EntityView;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
+import net.quackimpala7321.duckmod.DuckMod;
 import net.quackimpala7321.duckmod.ModSoundEvents;
 import net.quackimpala7321.duckmod.entity.ModEntities;
 import net.quackimpala7321.duckmod.item.ModItems;
@@ -56,23 +58,29 @@ public class DuckEntity extends TameableEntity {
             TAMING_ITEM
     );
 
-    private static final float WILD_MAX_HEALTH = 4.0f;
-    private static final float WILD_DAMAGE = 2.0f;
-    private static final float WILD_SPEED = 0.3f;
+    public static JsonObject DUCK_CONFIG;
 
-    private static final float TAMED_MAX_HEALTH = 20.0f;
-    public static final float TAMED_DAMAGE = 4.0f;
-    private static final float TAMED_SPEED = 0.35f;
+    public static final float WILD_MAX_HEALTH = 4.0f;
+    public static float WILD_DAMAGE;
+    public static final float WILD_SPEED = 0.3f;
+
+    public static final float TAMED_MAX_HEALTH = 20.0f;
+    public static float TAMED_DAMAGE;
+    public static final float TAMED_SPEED = 0.35f;
 
     private static final TrackedData<Boolean> SITTING =
             DataTracker.registerData(DuckEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
     public DuckEntity(EntityType<? extends TameableEntity> entityType, World world) {
         super(entityType, world);
-        setPathfindingPenalty(PathNodeType.WATER, 0.0f);
         setTamed(false);
+        setPathfindingPenalty(PathNodeType.WATER, 0.0f);
         setPathfindingPenalty(PathNodeType.POWDER_SNOW, -1.0f);
         setPathfindingPenalty(PathNodeType.DANGER_POWDER_SNOW, -1.0f);
+
+        DUCK_CONFIG = DuckMod.CONFIG.root.getAsJsonObject().get("duck").getAsJsonObject();
+        WILD_DAMAGE = DUCK_CONFIG.get("wild_duck_damage").getAsFloat();
+        TAMED_DAMAGE = DUCK_CONFIG.get("tamed_duck_damage").getAsFloat();
     }
 
     public static DefaultAttributeContainer.Builder createDuckAttributes() {
@@ -86,7 +94,7 @@ public class DuckEntity extends TameableEntity {
     protected void initGoals() {
         this.goalSelector.add(0, new SwimGoal(this));
         this.goalSelector.add(1, new SitGoal(this));
-        this.goalSelector.add(2, new DuckPounceGoal(this, 0.6f, TAMED_DAMAGE));
+        this.goalSelector.add(2, new DuckPounceGoal(this, 0.6f));
         this.goalSelector.add(3, new MeleeAttackGoal(this, 1.5, true));
         this.goalSelector.add(4, new FollowOwnerGoal(this, 1.0, 10.0f, 2.0f, false));
         this.goalSelector.add(5, new EscapeDangerGoal(this, 1.4));
@@ -134,6 +142,10 @@ public class DuckEntity extends TameableEntity {
             return ActionResult.PASS;
 
         return super.interactMob(player, hand);
+    }
+
+    public float getDamage() {
+        return isTamed() ? TAMED_DAMAGE : WILD_DAMAGE;
     }
 
     @Override
@@ -222,6 +234,16 @@ public class DuckEntity extends TameableEntity {
     }
 
     @Override
+    public boolean isTeammate(Entity other) {
+        if(!(other instanceof TameableEntity)) {
+            return false;
+        }
+        TameableEntity subject = (TameableEntity)other;
+
+        return this.getOwner() == subject.getOwner();
+    }
+
+    @Override
     protected boolean isFlappingWings() {
         return this.speed > this.field_28639;
     }
@@ -240,7 +262,7 @@ public class DuckEntity extends TameableEntity {
     @Nullable
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        return ModSoundEvents.DUCK_QUACK;
+        return ModSoundEvents.DUCK_HURT;
     }
 
     @Nullable
