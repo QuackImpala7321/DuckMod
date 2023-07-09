@@ -1,6 +1,5 @@
 package net.quackimpala7321.duckmod.item;
 
-import net.fabricmc.yarn.constants.MiningLevels;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.util.Lazy;
@@ -8,7 +7,7 @@ import net.minecraft.util.Lazy;
 import java.util.function.Supplier;
 
 public enum ModToolMaterials implements ToolMaterial {
-    DUCK(MiningLevels.IRON, 1751, 8.0f, 3.5f, 18, () -> Ingredient.ofItems(ModItems.DUCK_INGOT));
+    DUCK(ModMiningLevels.DUCK, 1751, 8.0f, 3.5f, 18, () -> Ingredient.ofItems(ModItems.DUCK_INGOT));
 
     private final int miningLevel;
     private final int itemDurability;
