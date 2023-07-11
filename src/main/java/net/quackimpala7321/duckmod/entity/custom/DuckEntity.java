@@ -1,6 +1,5 @@
 package net.quackimpala7321.duckmod.entity.custom;
 
-import com.google.gson.JsonObject;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.goal.*;
@@ -58,36 +57,31 @@ public class DuckEntity extends TameableEntity {
             TAMING_ITEM
     );
 
-    public static JsonObject DUCK_CONFIG;
+    public static final float WILD_MAX_HEALTH = DuckMod.CONFIG.getValue("duck.wild_max_health").getAsFloat();
+    public static final float WILD_DAMAGE = DuckMod.CONFIG.getValue("duck.wild_damage").getAsFloat();
+    public static final float WILD_SPEED = DuckMod.CONFIG.getValue("duck.wild_speed").getAsFloat();
 
-    public static final float WILD_MAX_HEALTH = 4.0f;
-    public static float WILD_DAMAGE;
-    public static final float WILD_SPEED = 0.3f;
-
-    public static final float TAMED_MAX_HEALTH = 20.0f;
-    public static float TAMED_DAMAGE;
-    public static final float TAMED_SPEED = 0.35f;
+    public static final float TAMED_MAX_HEALTH = DuckMod.CONFIG.getValue("duck.tamed_max_health").getAsFloat();
+    public static final float TAMED_DAMAGE = DuckMod.CONFIG.getValue("duck.tamed_damage").getAsFloat();
+    public static final float TAMED_SPEED = DuckMod.CONFIG.getValue("duck.tamed_speed").getAsFloat();
 
     private static final TrackedData<Boolean> SITTING =
             DataTracker.registerData(DuckEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
     public DuckEntity(EntityType<? extends TameableEntity> entityType, World world) {
         super(entityType, world);
+
         setTamed(false);
         setPathfindingPenalty(PathNodeType.WATER, 0.0f);
         setPathfindingPenalty(PathNodeType.POWDER_SNOW, -1.0f);
         setPathfindingPenalty(PathNodeType.DANGER_POWDER_SNOW, -1.0f);
-
-        DUCK_CONFIG = DuckMod.CONFIG.root.getAsJsonObject().get("duck").getAsJsonObject();
-        WILD_DAMAGE = DUCK_CONFIG.get("wild_duck_damage").getAsFloat();
-        TAMED_DAMAGE = DUCK_CONFIG.get("tamed_duck_damage").getAsFloat();
     }
 
     public static DefaultAttributeContainer.Builder createDuckAttributes() {
         return TameableEntity.createMobAttributes()
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, WILD_SPEED)
                 .add(EntityAttributes.GENERIC_MAX_HEALTH, WILD_MAX_HEALTH)
-                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, WILD_DAMAGE);
+                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, WILD_DAMAGE)
+                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, WILD_SPEED);
     }
 
     @Override
@@ -145,7 +139,7 @@ public class DuckEntity extends TameableEntity {
     }
 
     public float getDamage() {
-        return isTamed() ? TAMED_DAMAGE : WILD_DAMAGE;
+        return (float)getAttributes().getValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
     }
 
     @Override
@@ -305,12 +299,6 @@ public class DuckEntity extends TameableEntity {
     protected void initDataTracker() {
         super.initDataTracker();
         this.dataTracker.startTracking(SITTING, false);
-    }
-
-    @Nullable
-    @Override
-    public LivingEntity getOwner() {
-        return super.getOwner();
     }
 
     @Override

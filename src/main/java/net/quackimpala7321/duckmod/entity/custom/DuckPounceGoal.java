@@ -3,6 +3,7 @@ package net.quackimpala7321.duckmod.entity.custom;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.PounceAtTargetGoal;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
@@ -28,6 +29,8 @@ public class DuckPounceGoal extends PounceAtTargetGoal {
 
     @Override
     public void stop() {
+        if(this.mob.isSitting()) return;
+
         groundPound();
     }
 
@@ -54,7 +57,6 @@ public class DuckPounceGoal extends PounceAtTargetGoal {
                 continue;
 
             livingEntity.damage(this.mob.getWorld().getDamageSources().mobAttack(this.mob), this.mob.getDamage());
-            DuckMod.LOGGER.info("Dealt " + this.mob.getDamage() + " damage!");
         }
     }
 

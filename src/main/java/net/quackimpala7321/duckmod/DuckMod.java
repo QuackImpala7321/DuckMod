@@ -1,5 +1,6 @@
 package net.quackimpala7321.duckmod;
 
+import com.google.gson.JsonObject;
 import net.fabricmc.api.ModInitializer;
 
 import net.quackimpala7321.duckmod.block.ModBlockEntities;
@@ -20,8 +21,10 @@ public class DuckMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        CONFIG = new ModConfig();
+        CONFIG = new ModConfig(MOD_ID + ".config.json", createDefaultConfig());
         CONFIG.load();
+
+        DuckMod.LOGGER.info("Loading Config for " + DuckMod.MOD_ID);
 
         ModItems.registerModItems();
         ModBlocks.registerModBlocks();
@@ -31,5 +34,25 @@ public class DuckMod implements ModInitializer {
         ModEntitySpawns.addSpawns();
         ModItemGroups.registerItemGroups();
         ModSoundEvents.registerSoundEvents();
+    }
+
+    private JsonObject createDefaultConfig() {
+        JsonObject rootObject = new JsonObject();
+
+        JsonObject duck = new JsonObject();
+
+        duck.addProperty("wild_max_health", 4.0f);
+        duck.addProperty("wild_damage", 2.0f);
+        duck.addProperty("wild_speed", 0.3f);
+
+        duck.addProperty("tamed_max_health", 20.0f);
+        duck.addProperty("tamed_damage", 4.0f);
+        duck.addProperty("tamed_speed", 0.35f);
+
+        duck.addProperty("spawn_weight", 8);
+
+        rootObject.add("duck", duck);
+
+        return rootObject;
     }
 }
