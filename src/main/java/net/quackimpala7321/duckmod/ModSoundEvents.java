@@ -15,6 +15,9 @@ public class ModSoundEvents {
     public static final Identifier DUCK_DEATH_ID = new Identifier(DuckMod.MOD_ID, "duck_death");
     public static SoundEvent DUCK_DEATH = SoundEvent.of(DUCK_DEATH_ID);
 
+    public static final Identifier ITEM_ARMOR_EQUIP_DUCK_ID = new Identifier(DuckMod.MOD_ID, "item.armor.equip_duck");
+    public static SoundEvent ITEM_ARMOR_EQUIP_DUCK = SoundEvent.of(ITEM_ARMOR_EQUIP_DUCK_ID);
+
     public static void registerSoundEvents() {
         register(DUCK_QUACK_ID, DUCK_QUACK);
         register(DUCK_HURT_ID, DUCK_HURT);

@@ -138,17 +138,12 @@ public class DuckEntity extends TameableEntity {
         return super.interactMob(player, hand);
     }
 
-    public float getDamage() {
-        return (float)getAttributes().getValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
-    }
-
     @Override
     public boolean canAttackWithOwner(LivingEntity target, LivingEntity owner) {
         if (target instanceof CreeperEntity || target instanceof GhastEntity) {
             return false;
         }
-        if (target instanceof DuckEntity) {
-            DuckEntity duckEntity = (DuckEntity) target;
+        if (target instanceof DuckEntity duckEntity) {
             return !duckEntity.isTamed() || duckEntity.getOwner() != owner;
         }
         if (target instanceof PlayerEntity && owner instanceof PlayerEntity && !((PlayerEntity)owner).shouldDamagePlayer((PlayerEntity)target)) {

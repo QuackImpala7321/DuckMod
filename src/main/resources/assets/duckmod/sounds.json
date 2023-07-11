@@ -18,5 +18,12 @@
     "sounds": [
       "duckmod:duck_death"
     ]
+  },
+
+  "item.armor.equip_duck": {
+    "subtitle": "subtitles.duckmod.item.armor.equip_duck",
+    "sounds": [
+      "duckmod:duck_armor_equip"
+    ]
   }
 }

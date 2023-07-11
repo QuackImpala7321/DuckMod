@@ -15,16 +15,13 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public class DuckPounceGoal extends PounceAtTargetGoal {
-    private final DuckEntity mob;
-    private LivingEntity target;
-    private final float velocity;
+    private final TameableEntity mob;
 
     private static final Predicate<Entity> ALLOWED = Entity::isAlive;
 
     public DuckPounceGoal(DuckEntity mob, float velocity) {
         super(mob, velocity);
         this.mob = mob;
-        this.velocity = velocity;
     }
 
     @Override
@@ -56,7 +53,7 @@ public class DuckPounceGoal extends PounceAtTargetGoal {
             || mob.isTeammate(livingEntity))
                 continue;
 
-            livingEntity.damage(this.mob.getWorld().getDamageSources().mobAttack(this.mob), this.mob.getDamage());
+            livingEntity.damage(this.mob.getWorld().getDamageSources().mobAttack(this.mob), (float) this.mob.getAttributes().getValue(EntityAttributes.GENERIC_ATTACK_DAMAGE));
         }
     }
 

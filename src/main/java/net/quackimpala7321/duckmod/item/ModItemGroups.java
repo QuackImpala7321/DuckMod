@@ -18,6 +18,10 @@ public class ModItemGroups {
                         entries.add(ModItems.DUCKY_SWORD);
                         entries.add(ModItems.DUCKY_PICKAXE);
                         entries.add(ModItems.DUCKY_SHOVEL);
+                        entries.add(ModItems.DUCK_HELMET);
+                        entries.add(ModItems.DUCK_CHESTPLATE);
+                        entries.add(ModItems.DUCK_LEGGINGS);
+                        entries.add(ModItems.DUCK_BOOTS);
                         entries.add(ModItems.DUCK);
                         entries.add(ModItems.COOKED_DUCK);
                         entries.add(ModBlocks.DUCK_BLOCK);

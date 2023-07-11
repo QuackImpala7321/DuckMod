@@ -9,6 +9,11 @@
   "item.duckmod.ducky_pickaxe": "Ducky Pickaxe",
   "item.duckmod.ducky_shovel": "Ducky Shovel",
 
+  "item.duckmod.duck_helmet": "Duck Helmet",
+  "item.duckmod.duck_chestplate": "Duck Chestplate",
+  "item.duckmod.duck_leggings": "Duck Leggings",
+  "item.duckmod.duck_boots": "Duck Boots",
+
   "item.duckmod.duck_spawn_egg": "Duck Spawn Egg",
 
   "block.duckmod.duck_block": "Duck Block",
@@ -23,5 +28,7 @@
 
   "subtitles.duckmod.entity.duck.quack": "Duck quacks",
   "subtitles.duckmod.entity.duck.hurt": "Duck hurts",
-  "subtitles.duckmod.entity.duck.death": "Duck dies"
+  "subtitles.duckmod.entity.duck.death": "Duck dies",
+
+  "subtitles.duckmod.item.armor.equip_duck": "Duck armor quacks"
 }
