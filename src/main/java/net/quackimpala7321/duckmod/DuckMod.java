@@ -24,7 +24,7 @@ public class DuckMod implements ModInitializer {
         CONFIG = new ModConfig(MOD_ID + ".config.json", createDefaultConfig());
         CONFIG.load();
 
-        DuckMod.LOGGER.info("Loading Config for " + DuckMod.MOD_ID);
+        DuckMod.LOGGER.info("Loading Config for " + MOD_ID);
 
         ModItems.registerModItems();
         ModBlocks.registerModBlocks();

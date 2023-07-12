@@ -33,7 +33,7 @@ public class DuckEntityModel<T extends DuckEntity> extends ChickenEntityModel<T>
     public void animateModel(T duckEntity, float limbAngle, float limbDistance, float tickDelta) {
         super.animateModel(duckEntity, limbAngle, limbDistance, tickDelta);
 
-        if(duckEntity.isSitting()) {
+        if(duckEntity.isInSittingPose()) {
             this.body.setPivot(0.0f, 19.0f, 0.0f);
             this.body.pitch = (float)Math.toRadians(70);
 

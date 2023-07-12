@@ -9,6 +9,7 @@
   "item.duckmod.ducky_pickaxe": "Ducky Pickaxe",
   "item.duckmod.ducky_shovel": "Ducky Shovel",
 
+  "item.duckmod.duck_nest": "Duck Nest",
   "item.duckmod.duck_helmet": "Duck Helmet",
   "item.duckmod.duck_chestplate": "Duck Chestplate",
   "item.duckmod.duck_leggings": "Duck Leggings",
@@ -30,5 +31,8 @@
   "subtitles.duckmod.entity.duck.hurt": "Duck hurts",
   "subtitles.duckmod.entity.duck.death": "Duck dies",
 
-  "subtitles.duckmod.item.armor.equip_duck": "Duck armor quacks"
+  "subtitles.duckmod.item.armor.equip_duck": "Duck armor quacks",
+
+  "advancement.duckmod.duckatron.title": "The Duckatron",
+  "advancement.duckmod.duckatron.description": "Wear a full set of Duck Armor"
 }

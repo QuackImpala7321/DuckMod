@@ -18,6 +18,7 @@ public class ModItemGroups {
                         entries.add(ModItems.DUCKY_SWORD);
                         entries.add(ModItems.DUCKY_PICKAXE);
                         entries.add(ModItems.DUCKY_SHOVEL);
+                        entries.add(ModItems.DUCK_NEST);
                         entries.add(ModItems.DUCK_HELMET);
                         entries.add(ModItems.DUCK_CHESTPLATE);
                         entries.add(ModItems.DUCK_LEGGINGS);

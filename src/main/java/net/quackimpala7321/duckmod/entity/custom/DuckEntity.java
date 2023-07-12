@@ -65,8 +65,8 @@ public class DuckEntity extends TameableEntity {
     public static final float TAMED_DAMAGE = DuckMod.CONFIG.getValue("duck.tamed_damage").getAsFloat();
     public static final float TAMED_SPEED = DuckMod.CONFIG.getValue("duck.tamed_speed").getAsFloat();
 
-    private static final TrackedData<Boolean> SITTING =
-            DataTracker.registerData(DuckEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+//    private static final TrackedData<Boolean> SITTING =
+//            DataTracker.registerData(DuckEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
     public DuckEntity(EntityType<? extends TameableEntity> entityType, World world) {
         super(entityType, world);
@@ -170,6 +170,11 @@ public class DuckEntity extends TameableEntity {
         }
     }
 
+    private void setSit(boolean sitting) {
+        setInSittingPose(sitting);
+        super.setSitting(sitting);
+    }
+
     @Override
     public void tickMovement() {
         super.tickMovement();
@@ -205,16 +210,16 @@ public class DuckEntity extends TameableEntity {
         if (nbt.contains("EggLayTime")) {
             this.eggLayTime = nbt.getInt("EggLayTime");
         }
-        if(nbt.contains("isSitting")) {
-            this.dataTracker.set(SITTING, nbt.getBoolean("isSitting"));
-        }
+//        if(nbt.contains("isSitting")) {
+//            this.dataTracker.set(SITTING, nbt.getBoolean("isSitting"));
+//        }
     }
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
         nbt.putInt("EggLayTime", this.eggLayTime);
-        nbt.putBoolean("isSitting", this.dataTracker.get(SITTING));
+//        nbt.putBoolean("isSitting", this.dataTracker.get(SITTING));
     }
 
     @Override
@@ -281,19 +286,10 @@ public class DuckEntity extends TameableEntity {
         return this.isTamed() && super.canBeLeashedBy(player);
     }
 
-    public void setSit(boolean sitting) {
-        this.dataTracker.set(SITTING, sitting);
-        super.setSitting(sitting);
-    }
-
-    public boolean isSitting() {
-        return this.dataTracker.get(SITTING);
-    }
-
     @Override
     protected void initDataTracker() {
         super.initDataTracker();
-        this.dataTracker.startTracking(SITTING, false);
+//        this.dataTracker.startTracking(SITTING, false);
     }
 
     @Override

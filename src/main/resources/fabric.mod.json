@@ -15,6 +15,9 @@
 	"icon": "assets/duckmod/icon.png",
 	"environment": "*",
 	"entrypoints": {
+		"fabric-datagen": [
+			"net.quackimpala7321.duckmod.ModDataGeneration"
+		],
 		"main": [
 			"net.quackimpala7321.duckmod.DuckMod"
 		],

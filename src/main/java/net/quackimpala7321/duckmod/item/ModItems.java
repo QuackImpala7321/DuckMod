@@ -7,8 +7,10 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.quackimpala7321.duckmod.DuckMod;
 import net.quackimpala7321.duckmod.armor.custom.DuckArmorMaterial;
+import net.quackimpala7321.duckmod.armor.custom.DuckNestArmorMaterial;
 import net.quackimpala7321.duckmod.entity.ModEntities;
 import net.quackimpala7321.duckmod.item.custom.DuckEggItem;
+import net.quackimpala7321.duckmod.item.custom.DuckNestItem;
 
 
 public class ModItems {
@@ -42,6 +44,11 @@ public class ModItems {
             new ArmorItem(DUCK_ARMOR_MATERIAL, ArmorItem.Type.LEGGINGS, new FabricItemSettings()));
     public static final Item DUCK_BOOTS = registerItem("duck_boots",
             new ArmorItem(DUCK_ARMOR_MATERIAL, ArmorItem.Type.BOOTS, new FabricItemSettings()));
+
+    private static final ArmorMaterial DUCK_NEST_ARMOR_MATERIAL = new DuckNestArmorMaterial();
+
+    public static final Item DUCK_NEST = registerItem("duck_nest",
+            new DuckNestItem(DUCK_NEST_ARMOR_MATERIAL, ArmorItem.Type.HELMET, new FabricItemSettings()));
 
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, new Identifier(DuckMod.MOD_ID, name), item);
