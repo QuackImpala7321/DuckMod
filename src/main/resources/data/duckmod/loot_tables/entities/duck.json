@@ -25,7 +25,7 @@
               "function": "minecraft:looting_enchant"
             }
           ],
-          "name": "minecraft:feather"
+          "name": "duckmod:duck_feather"
         }
       ],
       "rolls": 1.0

@@ -2,6 +2,7 @@ package net.quackimpala7321.duckmod.entity;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -11,12 +12,22 @@ import net.minecraft.util.Identifier;
 import net.quackimpala7321.duckmod.DuckMod;
 import net.quackimpala7321.duckmod.entity.custom.DuckBossEntity;
 import net.quackimpala7321.duckmod.entity.custom.DuckEntity;
+import net.quackimpala7321.duckmod.entity.custom.DuckFeatherEntity;
 
 public class ModEntities {
     public static final EntityType<DuckEntity> DUCK_ENTITY = Registry.register(
             Registries.ENTITY_TYPE,
             new Identifier(DuckMod.MOD_ID, "duck"),
             FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, DuckEntity::new).dimensions(EntityDimensions.fixed(0.4f, 0.7f)).build()
+    );
+
+    public static final EntityType<DuckFeatherEntity> DUCK_FEATHER_ENTITY = Registry.register(
+            Registries.ENTITY_TYPE,
+            new Identifier(DuckMod.MOD_ID, "duck_feather"),
+            FabricEntityTypeBuilder.<DuckFeatherEntity>create(SpawnGroup.MISC, DuckFeatherEntity::new).dimensions(EntityDimensions.fixed(0.4f, 0.7f))
+                    .trackRangeBlocks(4)
+                    .trackedUpdateRate(10)
+                    .build()
     );
 
 //    public static final EntityType<DuckBossEntity> DUCK_BOSS_ENTITY = Registry.register(

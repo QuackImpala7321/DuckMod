@@ -4,6 +4,7 @@
   "item.duckmod.duck": "Raw Duck",
   "item.duckmod.cooked_duck": "Cooked Duck",
   "item.duckmod.duck_egg": "Duck Egg",
+  "item.duckmod.duck_feather": "Duck Feather",
 
   "item.duckmod.ducky_sword": "Ducky Sword",
   "item.duckmod.ducky_pickaxe": "Ducky Pickaxe",
@@ -27,6 +28,8 @@
   "entity.duckmod.duck": "Duck",
   "entity.duckmod.duck_boss": "Duck Boss",
 
+  "entity.duckmod.duck_feather": "Duck Feather",
+
   "subtitles.duckmod.entity.duck.quack": "Duck quacks",
   "subtitles.duckmod.entity.duck.hurt": "Duck hurts",
   "subtitles.duckmod.entity.duck.death": "Duck dies",
@@ -34,5 +37,7 @@
   "subtitles.duckmod.item.armor.equip_duck": "Duck armor quacks",
 
   "advancement.duckmod.duckatron.title": "The Duckatron",
-  "advancement.duckmod.duckatron.description": "Wear a full set of Duck Armor"
+  "advancement.duckmod.duckatron.description": "Get a full set of Duck Armor",
+
+  "effect.duckmod.duck_leader": "Duck Leader"
 }

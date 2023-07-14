@@ -5,10 +5,14 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
+import net.quackimpala7321.duckmod.statuseffect.ModStatusEffects;
 
 public class DuckNestItem extends ArmorItem {
 
@@ -21,7 +25,7 @@ public class DuckNestItem extends ArmorItem {
         if(slot != EquipmentSlot.HEAD.getEntitySlotId()) return;
 
         if(entity instanceof LivingEntity livingEntity) {
-            livingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.LUCK, 0, 0));
+            livingEntity.addStatusEffect(new StatusEffectInstance(ModStatusEffects.DUCK_LEADER, 0, 0, true, false));
         }
     }
 }

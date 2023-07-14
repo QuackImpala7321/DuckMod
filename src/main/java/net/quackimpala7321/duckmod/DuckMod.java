@@ -10,6 +10,7 @@ import net.quackimpala7321.duckmod.entity.ModEntities;
 import net.quackimpala7321.duckmod.entity.ModEntitySpawns;
 import net.quackimpala7321.duckmod.item.ModItemGroups;
 import net.quackimpala7321.duckmod.item.ModItems;
+import net.quackimpala7321.duckmod.statuseffect.ModStatusEffects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +27,11 @@ public class DuckMod implements ModInitializer {
 
         DuckMod.LOGGER.info("Loading Config for " + MOD_ID);
 
+        ModNetworkingConstants.registerNetworkingConstants();
         ModItems.registerModItems();
         ModBlocks.registerModBlocks();
         ModBlockEntities.registerModBlockEntities();
+        ModStatusEffects.registerStatusEffects();
         ModEntities.registerModEntities();
         ModBiomeTags.registerBiomeTags();
         ModEntitySpawns.addSpawns();

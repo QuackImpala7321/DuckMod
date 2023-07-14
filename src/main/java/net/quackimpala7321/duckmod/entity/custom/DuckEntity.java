@@ -1,7 +1,10 @@
 package net.quackimpala7321.duckmod.entity.custom;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
+import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -10,17 +13,22 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.entity.passive.TameableShoulderEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -33,12 +41,15 @@ import net.minecraft.world.EntityView;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import net.quackimpala7321.duckmod.DuckMod;
+import net.quackimpala7321.duckmod.ModNetworkingConstants;
 import net.quackimpala7321.duckmod.ModSoundEvents;
 import net.quackimpala7321.duckmod.entity.ModEntities;
 import net.quackimpala7321.duckmod.item.ModItems;
+import net.quackimpala7321.duckmod.item.custom.DuckFeatherItem;
+import net.quackimpala7321.duckmod.statuseffect.ModStatusEffects;
 import org.jetbrains.annotations.Nullable;
 
-public class DuckEntity extends TameableEntity {
+public class DuckEntity extends TameableEntity implements RangedAttackMob {
     public float flapProgress;
     public float maxWingDeviation;
     public float prevMaxWingDeviation;
@@ -46,6 +57,9 @@ public class DuckEntity extends TameableEntity {
     public float flapSpeed = 1.0f;
     private float field_28639 = 1.0f;
     public int eggLayTime = this.random.nextInt(6000) + 6000;
+    private boolean onPlayer;
+
+    private int ticks = 0;
 
     private static final Item TAMING_ITEM = Items.MUSHROOM_STEW;
 
@@ -57,6 +71,9 @@ public class DuckEntity extends TameableEntity {
             TAMING_ITEM
     );
 
+    private static final TrackedData<Boolean> SITTING_ON_PLAYER =
+            DataTracker.registerData(DuckEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+
     public static final float WILD_MAX_HEALTH = DuckMod.CONFIG.getValue("duck.wild_max_health").getAsFloat();
     public static final float WILD_DAMAGE = DuckMod.CONFIG.getValue("duck.wild_damage").getAsFloat();
     public static final float WILD_SPEED = DuckMod.CONFIG.getValue("duck.wild_speed").getAsFloat();
@@ -65,12 +82,10 @@ public class DuckEntity extends TameableEntity {
     public static final float TAMED_DAMAGE = DuckMod.CONFIG.getValue("duck.tamed_damage").getAsFloat();
     public static final float TAMED_SPEED = DuckMod.CONFIG.getValue("duck.tamed_speed").getAsFloat();
 
-//    private static final TrackedData<Boolean> SITTING =
-//            DataTracker.registerData(DuckEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-
     public DuckEntity(EntityType<? extends TameableEntity> entityType, World world) {
         super(entityType, world);
 
+        this.onPlayer = false;
         setTamed(false);
         setPathfindingPenalty(PathNodeType.WATER, 0.0f);
         setPathfindingPenalty(PathNodeType.POWDER_SNOW, -1.0f);
@@ -88,16 +103,18 @@ public class DuckEntity extends TameableEntity {
     protected void initGoals() {
         this.goalSelector.add(0, new SwimGoal(this));
         this.goalSelector.add(1, new SitGoal(this));
-        this.goalSelector.add(2, new DuckPounceGoal(this, 0.6f));
-        this.goalSelector.add(3, new MeleeAttackGoal(this, 1.5, true));
-        this.goalSelector.add(4, new FollowOwnerGoal(this, 1.0, 10.0f, 2.0f, false));
+        this.goalSelector.add(2, new DuckProjectileAttackGoal(this, 1.0, 30, 20));
+        this.goalSelector.add(3, new DuckPounceGoal(this, 0.6f));
+        this.goalSelector.add(4, new MeleeAttackGoal(this, 1.5, true));
         this.goalSelector.add(5, new EscapeDangerGoal(this, 1.4));
-        this.goalSelector.add(6, new AnimalMateGoal(this, 1.0));
-        this.goalSelector.add(7, new TemptGoal(this, 1.0, TEMPT_INGREDIENT, false));
-        this.goalSelector.add(8, new FollowParentGoal(this, 1.1));
-        this.goalSelector.add(9, new WanderAroundFarGoal(this, 1.0));
-        this.goalSelector.add(10, new LookAtEntityGoal(this, PlayerEntity.class, 6.0f));
-        this.goalSelector.add(10, new LookAroundGoal(this));
+        this.goalSelector.add(6, new FollowOwnerGoal(this, 1.0, 10.0f, 2.0f, false));
+        this.goalSelector.add(7, new AnimalMateGoal(this, 1.0));
+        this.goalSelector.add(8, new SitOnPlayerGoal(this));
+        this.goalSelector.add(9, new TemptGoal(this, 1.0, TEMPT_INGREDIENT, false));
+        this.goalSelector.add(10, new FollowParentGoal(this, 1.1));
+        this.goalSelector.add(11, new LookAtEntityGoal(this, PlayerEntity.class, 6.0f));
+        this.goalSelector.add(11, new LookAroundGoal(this));
+        this.goalSelector.add(12, new WanderAroundFarGoal(this, 1.0));
         this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
         this.targetSelector.add(2, new AttackWithOwnerGoal(this));
         this.targetSelector.add(3, new RevengeGoal(this));
@@ -105,6 +122,8 @@ public class DuckEntity extends TameableEntity {
 
     @Override
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
+        if(isOwner(player) && isOnPlayer()) return ActionResult.PASS;
+
         ItemStack itemStack = player.getStackInHand(hand);
         Item item = itemStack.getItem();
 
@@ -205,21 +224,62 @@ public class DuckEntity extends TameableEntity {
     }
 
     @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
-        if (nbt.contains("EggLayTime")) {
-            this.eggLayTime = nbt.getInt("EggLayTime");
-        }
-//        if(nbt.contains("isSitting")) {
-//            this.dataTracker.set(SITTING, nbt.getBoolean("isSitting"));
-//        }
+    protected void initDataTracker() {
+        super.initDataTracker();
+        this.dataTracker.startTracking(SITTING_ON_PLAYER, false);
     }
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
         nbt.putInt("EggLayTime", this.eggLayTime);
-//        nbt.putBoolean("isSitting", this.dataTracker.get(SITTING));
+        nbt.putBoolean("SittingOnPlayer", this.dataTracker.get(SITTING_ON_PLAYER));
+    }
+
+    @Override
+    public double getHeightOffset() {
+        return isOnPlayer() ? 0.5 : super.getHeightOffset();
+    }
+
+    @Override
+    public void readCustomDataFromNbt(NbtCompound nbt) {
+        super.readCustomDataFromNbt(nbt);
+        if (nbt.contains("EggLayTime")) {
+            this.eggLayTime = nbt.getInt("EggLayTime");
+        }
+        if(nbt.contains("SittingOnPlayer")) {
+            this.dataTracker.set(SITTING_ON_PLAYER, nbt.getBoolean("SittingOnPlayer"));
+        }
+    }
+
+    @Override
+    public void tick() {
+        this.ticks++;
+        super.tick();
+    }
+
+    public boolean isOnPlayer() {
+        return this.onPlayer;
+    }
+
+    public void sitOnOwner() {
+        this.onPlayer = true;
+        this.ticks = 100;
+        this.startRiding(this.getOwner());
+        DuckMod.LOGGER.info((this.getWorld().isClient ? "client" : "server") + ": get sat on");
+    }
+
+    public void dismountOwner() {
+        this.onPlayer = false;
+        this.ticks = 0;
+        this.stopRiding();
+        DuckMod.LOGGER.info((this.getWorld().isClient ? "client" : "server") + ": get unsat on");
+    }
+
+    public boolean canSitOnPlayer() {
+        if(this.getOwner() == null) return false;
+
+        return this.ticks > 100 && !this.getOwner().hasPassengers();
     }
 
     @Override
@@ -229,10 +289,9 @@ public class DuckEntity extends TameableEntity {
 
     @Override
     public boolean isTeammate(Entity other) {
-        if(!(other instanceof TameableEntity)) {
+        if(!(other instanceof TameableEntity subject)) {
             return false;
         }
-        TameableEntity subject = (TameableEntity)other;
 
         return this.getOwner() == subject.getOwner();
     }
@@ -287,13 +346,116 @@ public class DuckEntity extends TameableEntity {
     }
 
     @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
-//        this.dataTracker.startTracking(SITTING, false);
+    public EntityView method_48926() {
+        return this.getWorld();
+    }
+
+    private PersistentProjectileEntity createFeatherProjectile(LivingEntity entity, float damageModifier) {
+        DuckFeatherItem featherItem = (DuckFeatherItem) ModItems.DUCK_FEATHER_ITEM;
+        PersistentProjectileEntity persistentProjectileEntity = featherItem.createFeatherEntity(entity.getWorld(), entity);
+        persistentProjectileEntity.applyEnchantmentEffects(entity, damageModifier);
+
+        return persistentProjectileEntity;
     }
 
     @Override
-    public EntityView method_48926() {
-        return this.getWorld();
+    public void attack(LivingEntity target, float pullProgress) {
+        PersistentProjectileEntity featherProjectile = this.createFeatherProjectile(this,
+                (float) this.getAttributes().getValue(EntityAttributes.GENERIC_ATTACK_DAMAGE));
+        double d = target.getX() - this.getX();
+        double e = target.getBodyY(0.3333333333333333) - featherProjectile.getY();
+        double f = target.getZ() - this.getZ();
+        double g = Math.sqrt(d * d + f * f);
+        featherProjectile.setVelocity(d, e + g * (double)0.2f, f, 1.6f, 8);
+
+        this.getWorld().spawnEntity(featherProjectile);
+    }
+}
+
+class DuckProjectileAttackGoal extends ProjectileAttackGoal {
+    private final DuckEntity mob;
+
+    public DuckProjectileAttackGoal(DuckEntity mob, double mobSpeed, int intervalTicks, float maxShootRange) {
+        super(mob, mobSpeed, intervalTicks, maxShootRange);
+
+        this.mob = mob;
+    }
+
+    @Override
+    public boolean canStart() {
+        return super.canStart() && mob.isOnPlayer();
+    }
+}
+
+class SitOnPlayerGoal extends Goal {
+    private final DuckEntity mob;
+    private ServerPlayerEntity owner;
+    private boolean mounted;
+
+    public SitOnPlayerGoal(DuckEntity mob) {
+        this.mob = mob;
+    }
+
+    @Override
+    public boolean canStart() {
+        ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity)this.mob.getOwner();
+        boolean bl = serverPlayerEntity != null && !serverPlayerEntity.isSpectator() && !serverPlayerEntity.getAbilities().flying && !serverPlayerEntity.isTouchingWater() && !serverPlayerEntity.inPowderSnow && serverPlayerEntity.hasStatusEffect(ModStatusEffects.DUCK_LEADER);
+        return !this.mob.isSitting() && bl && this.mob.canSitOnPlayer();
+    }
+
+    @Override
+    public void start() {
+        this.owner = (ServerPlayerEntity)this.mob.getOwner();
+        this.mounted = false;
+    }
+
+    @Override
+    public boolean shouldContinue() {
+        return !this.owner.isSneaking() && this.owner.hasStatusEffect(ModStatusEffects.DUCK_LEADER);
+    }
+
+    @Override
+    public boolean canStop() {
+        return !this.mounted || this.owner.isSneaking();
+    }
+
+    @Override
+    public void tick() {
+        if (this.mounted || this.mob.isInSittingPose() || this.mob.isLeashed() || this.owner.isSneaking()) {
+            return;
+        }
+        if (this.mob.getBoundingBox().intersects(this.owner.getBoundingBox())) {
+            this.mounted = true;
+
+            mount();
+        }
+    }
+
+    private void mount() {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeInt(this.mob.getId());
+        buf.writeBoolean(true);
+
+        ServerPlayNetworking.send(owner, ModNetworkingConstants.DUCK_MOUNT_TOGGLE_ID, buf);
+        this.mob.sitOnOwner();
+    }
+
+    private void dismount() {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeInt(this.mob.getId());
+        buf.writeBoolean(false);
+
+        ServerPlayNetworking.send(owner, ModNetworkingConstants.DUCK_MOUNT_TOGGLE_ID, buf);
+        this.mob.dismountOwner();
+    }
+
+    @Override
+    public void stop() {
+        dismount();
+    }
+
+    @Override
+    public boolean shouldRunEveryTick() {
+        return true;
     }
 }

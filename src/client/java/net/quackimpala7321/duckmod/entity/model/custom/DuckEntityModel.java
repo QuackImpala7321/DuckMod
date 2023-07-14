@@ -1,13 +1,17 @@
 package net.quackimpala7321.duckmod.entity.model.custom;
 
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.ChickenEntityModel;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;
+import net.minecraft.client.render.entity.model.ParrotEntityModel;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.quackimpala7321.duckmod.entity.custom.DuckEntity;
 
 public class DuckEntityModel<T extends DuckEntity> extends ChickenEntityModel<T> {
     public static final String RED_THING = "red_thing";
+    private final ModelPart root;
     private final ModelPart head;
     private final ModelPart body;
     private final ModelPart rightLeg;
@@ -19,6 +23,7 @@ public class DuckEntityModel<T extends DuckEntity> extends ChickenEntityModel<T>
 
     public DuckEntityModel(ModelPart root) {
         super(root);
+        this.root = root;
         this.head = root.getChild(EntityModelPartNames.HEAD);
         this.beak = root.getChild(EntityModelPartNames.BEAK);
         this.wattle = root.getChild(RED_THING);
@@ -31,9 +36,11 @@ public class DuckEntityModel<T extends DuckEntity> extends ChickenEntityModel<T>
 
     @Override
     public void animateModel(T duckEntity, float limbAngle, float limbDistance, float tickDelta) {
-        super.animateModel(duckEntity, limbAngle, limbDistance, tickDelta);
+        animateModel(getPose(duckEntity));
+    }
 
-        if(duckEntity.isInSittingPose()) {
+    public void animateModel(Pose pose) {
+        if(pose == Pose.SITTING || pose == Pose.ON_SHOULDER) {
             this.body.setPivot(0.0f, 19.0f, 0.0f);
             this.body.pitch = (float)Math.toRadians(70);
 
@@ -43,7 +50,7 @@ public class DuckEntityModel<T extends DuckEntity> extends ChickenEntityModel<T>
 
             this.leftWing.setPivot(4.0f, 16.0f, 0.0f);
             this.rightWing.setPivot(-4.0f, 16.0f, 0.0f);
-        } else {
+        } else if (pose == Pose.STANDING) {
             this.body.setPivot(0.0f, 16.0f, 0.0f);
             this.body.pitch = (float)Math.toRadians(90);
 
@@ -53,10 +60,25 @@ public class DuckEntityModel<T extends DuckEntity> extends ChickenEntityModel<T>
 
             this.leftWing.setPivot(4.0f, 13.0f, 0.0f);
             this.rightWing.setPivot(-4.0f, 13.0f, 0.0f);
-
         }
 
         this.leftWing.pitch = this.body.pitch - (float)Math.toRadians(90);
         this.rightWing.pitch = this.body.pitch - (float)Math.toRadians(90);
+    }
+
+    Pose getPose(DuckEntity duckEntity) {
+        if(duckEntity.isInSittingPose()) {
+            return Pose.SITTING;
+        }
+        if(duckEntity.isOnPlayer()) {
+            return Pose.ON_SHOULDER;
+        }
+        return Pose.STANDING;
+    }
+
+    public enum Pose {
+        SITTING,
+        ON_SHOULDER,
+        STANDING
     }
 }

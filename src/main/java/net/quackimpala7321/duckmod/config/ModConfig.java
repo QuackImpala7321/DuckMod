@@ -1,5 +1,9 @@
 package net.quackimpala7321.duckmod.config;
 
+/*
+    Do whatever you like with this config template.
+ */
+
 import com.google.gson.*;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -23,10 +27,6 @@ public class ModConfig {
                 .toFile();
 
         this.DEFAULT = defaultConfig;
-    }
-
-    private JsonObject getDefaultConfig() {
-        return this.DEFAULT;
     }
 
     public JsonElement getValue(String key) {
@@ -63,7 +63,7 @@ public class ModConfig {
         try (FileWriter fileWriter = new FileWriter(FILE)) {
             FILE.createNewFile();
 
-            this.root = getDefaultConfig();
+            this.root = this.DEFAULT;
             fileWriter.write(GSON.toJson(this.root));
         } catch (Exception e) {
 
@@ -76,10 +76,9 @@ public class ModConfig {
 
     private void resolveMissingContents() {
         replace = false;
-        JsonObject defaultConfig = getDefaultConfig();
 
-        for (String keyName : defaultConfig.keySet()) {
-            resolveIndividual(keyName, this.root, defaultConfig);
+        for (String keyName : this.DEFAULT.keySet()) {
+            resolveIndividual(keyName, this.root, this.DEFAULT);
         }
 
         // End of checks

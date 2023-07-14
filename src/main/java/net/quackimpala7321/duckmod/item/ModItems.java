@@ -10,6 +10,7 @@ import net.quackimpala7321.duckmod.armor.custom.DuckArmorMaterial;
 import net.quackimpala7321.duckmod.armor.custom.DuckNestArmorMaterial;
 import net.quackimpala7321.duckmod.entity.ModEntities;
 import net.quackimpala7321.duckmod.item.custom.DuckEggItem;
+import net.quackimpala7321.duckmod.item.custom.DuckFeatherItem;
 import net.quackimpala7321.duckmod.item.custom.DuckNestItem;
 
 
@@ -49,6 +50,9 @@ public class ModItems {
 
     public static final Item DUCK_NEST = registerItem("duck_nest",
             new DuckNestItem(DUCK_NEST_ARMOR_MATERIAL, ArmorItem.Type.HELMET, new FabricItemSettings()));
+
+    public static final Item DUCK_FEATHER_ITEM = registerItem("duck_feather",
+            new DuckFeatherItem(new FabricItemSettings()));
 
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, new Identifier(DuckMod.MOD_ID, name), item);
