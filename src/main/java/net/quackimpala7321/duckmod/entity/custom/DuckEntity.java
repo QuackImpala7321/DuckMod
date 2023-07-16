@@ -10,6 +10,9 @@ import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageSources;
+import net.minecraft.entity.damage.DamageType;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -28,6 +31,8 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -58,6 +63,7 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
     private float field_28639 = 1.0f;
     public int eggLayTime = this.random.nextInt(6000) + 6000;
     private boolean onPlayer;
+    private boolean left;
 
     private int ticks = 0;
 
@@ -72,6 +78,8 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
     );
 
     private static final TrackedData<Boolean> SITTING_ON_PLAYER =
+            DataTracker.registerData(DuckEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> LEFT =
             DataTracker.registerData(DuckEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
     public static final float WILD_MAX_HEALTH = DuckMod.CONFIG.getValue("duck.wild_max_health").getAsFloat();
@@ -154,6 +162,14 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
         if(item == TAMING_ITEM)
             return ActionResult.PASS;
 
+        if(isBreedingItem(itemStack)) {
+            if(!player.getAbilities().creativeMode) {
+                itemStack.decrement(1);
+            }
+
+            heal(item.getFoodComponent().getHunger());
+        }
+
         return super.interactMob(player, hand);
     }
 
@@ -210,12 +226,17 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
             this.setVelocity(vec3d.multiply(1.0, isTamed() && getTarget() != null ? 1.0 : 0.6, 1.0));
         }
         this.flapProgress += this.flapSpeed * 2.0f;
-        if (!this.getWorld().isClient && this.isAlive() && !this.isBaby() && --this.eggLayTime <= 0) {
+        if (!this.getWorld().isClient && this.isAlive() && !this.isBaby() && !this.isOnPlayer() && --this.eggLayTime <= 0) {
             this.playSound(SoundEvents.ENTITY_CHICKEN_EGG, 1.0f, (this.random.nextFloat() - this.random.nextFloat()) * 0.2f + 1.0f);
             this.dropItem(ModItems.DUCK_EGG);
             this.emitGameEvent(GameEvent.ENTITY_PLACE);
             this.eggLayTime = this.random.nextInt(6000) + 6000;
         }
+    }
+
+    @Override
+    public boolean isInvulnerableTo(DamageSource damageSource) {
+        return (damageSource.getTypeRegistryEntry().matchesKey(DamageTypes.IN_WALL) && isOnPlayer()) || super.isInvulnerableTo(damageSource);
     }
 
     @Override
@@ -227,6 +248,7 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
     protected void initDataTracker() {
         super.initDataTracker();
         this.dataTracker.startTracking(SITTING_ON_PLAYER, false);
+        this.dataTracker.startTracking(LEFT, true);
     }
 
     @Override
@@ -234,11 +256,7 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
         super.writeCustomDataToNbt(nbt);
         nbt.putInt("EggLayTime", this.eggLayTime);
         nbt.putBoolean("SittingOnPlayer", this.dataTracker.get(SITTING_ON_PLAYER));
-    }
-
-    @Override
-    public double getHeightOffset() {
-        return isOnPlayer() ? 0.5 : super.getHeightOffset();
+        nbt.putBoolean("Left", this.dataTracker.get(LEFT));
     }
 
     @Override
@@ -250,6 +268,9 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
         if(nbt.contains("SittingOnPlayer")) {
             this.dataTracker.set(SITTING_ON_PLAYER, nbt.getBoolean("SittingOnPlayer"));
         }
+        if(nbt.contains("Left")) {
+            this.dataTracker.set(LEFT, nbt.getBoolean("Left"));
+        }
     }
 
     @Override
@@ -258,15 +279,29 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
         super.tick();
     }
 
+    public double onPlayerHeightOffset() {
+        return 0.5;
+    }
+
     public boolean isOnPlayer() {
         return this.onPlayer;
     }
 
+    public boolean isOnLeft() {
+        return this.left;
+    }
+
     public void sitOnOwner() {
+        if(getOwner() == null) return;
         this.onPlayer = true;
+
+        this.left = !getOwner().hasPassengers();
+
         this.ticks = 100;
-        this.startRiding(this.getOwner());
+        this.startRiding(this.getOwner(), true);
         DuckMod.LOGGER.info((this.getWorld().isClient ? "client" : "server") + ": get sat on");
+
+        DuckMod.LOGGER.info("Mounting Side: " + (this.left ? "Left" : "Right"));
     }
 
     public void dismountOwner() {
@@ -279,7 +314,7 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
     public boolean canSitOnPlayer() {
         if(this.getOwner() == null) return false;
 
-        return this.ticks > 100 && !this.getOwner().hasPassengers();
+        return this.ticks > 100 && this.getOwner().getPassengerList().size() < 2;
     }
 
     @Override
@@ -350,20 +385,19 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
         return this.getWorld();
     }
 
-    private PersistentProjectileEntity createFeatherProjectile(LivingEntity entity, float damageModifier) {
+    private PersistentProjectileEntity createFeatherProjectile(LivingEntity entity) {
         DuckFeatherItem featherItem = (DuckFeatherItem) ModItems.DUCK_FEATHER_ITEM;
         PersistentProjectileEntity persistentProjectileEntity = featherItem.createFeatherEntity(entity.getWorld(), entity);
-        persistentProjectileEntity.applyEnchantmentEffects(entity, damageModifier);
+        persistentProjectileEntity.setDamage(entity.getAttributes().getValue(EntityAttributes.GENERIC_ATTACK_DAMAGE));
 
         return persistentProjectileEntity;
     }
 
     @Override
     public void attack(LivingEntity target, float pullProgress) {
-        PersistentProjectileEntity featherProjectile = this.createFeatherProjectile(this,
-                (float) this.getAttributes().getValue(EntityAttributes.GENERIC_ATTACK_DAMAGE));
+        PersistentProjectileEntity featherProjectile = this.createFeatherProjectile(this);
         double d = target.getX() - this.getX();
-        double e = target.getBodyY(0.3333333333333333) - featherProjectile.getY();
+        double e = target.getBodyY(0.3333333333333333) - featherProjectile.getY() - getHeightOffset();
         double f = target.getZ() - this.getZ();
         double g = Math.sqrt(d * d + f * f);
         featherProjectile.setVelocity(d, e + g * (double)0.2f, f, 1.6f, 8);

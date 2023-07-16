@@ -3,7 +3,7 @@
 	"package": "net.quackimpala7321.duckmod.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"ExampleMixin"
+		"EntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

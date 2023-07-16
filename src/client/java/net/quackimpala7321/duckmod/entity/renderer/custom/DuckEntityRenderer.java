@@ -1,8 +1,8 @@
 package net.quackimpala7321.duckmod.entity.renderer.custom;
 
+import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.MobEntityRenderer;
-import net.minecraft.client.render.entity.model.ChickenEntityModel;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.quackimpala7321.duckmod.DuckMod;
@@ -16,6 +16,15 @@ public class DuckEntityRenderer extends MobEntityRenderer<DuckEntity, DuckEntity
     public DuckEntityRenderer(EntityRendererFactory.Context context) {
         super(context, new DuckEntityModel<>(context.getPart(ModEntityRenderers.DUCK_MODEL_LAYER)), 0.3f);
     }
+
+//    @Override
+//    public boolean shouldRender(DuckEntity duckEntity, Frustum frustum, double d, double e, double f) {
+//        if(duckEntity.isOnPlayer()) {
+//            return false;
+//        }
+//
+//        return super.shouldRender(duckEntity, frustum, d, e, f);
+//    }
 
     @Override
     public Identifier getTexture(DuckEntity duckEntity) {
