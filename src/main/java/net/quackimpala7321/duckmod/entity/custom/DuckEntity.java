@@ -175,7 +175,7 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
 
     @Override
     public boolean canAttackWithOwner(LivingEntity target, LivingEntity owner) {
-        if (target instanceof CreeperEntity || target instanceof GhastEntity) {
+        if ((target instanceof CreeperEntity || target instanceof GhastEntity) && !isOnPlayer()) {
             return false;
         }
         if (target instanceof DuckEntity duckEntity) {
@@ -299,16 +299,12 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
 
         this.ticks = 100;
         this.startRiding(this.getOwner(), true);
-        DuckMod.LOGGER.info((this.getWorld().isClient ? "client" : "server") + ": get sat on");
-
-        DuckMod.LOGGER.info("Mounting Side: " + (this.left ? "Left" : "Right"));
     }
 
     public void dismountOwner() {
         this.onPlayer = false;
         this.ticks = 0;
         this.stopRiding();
-        DuckMod.LOGGER.info((this.getWorld().isClient ? "client" : "server") + ": get unsat on");
     }
 
     public boolean canSitOnPlayer() {

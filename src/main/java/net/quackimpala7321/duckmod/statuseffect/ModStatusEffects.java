@@ -8,7 +8,7 @@ import net.minecraft.util.Identifier;
 import net.quackimpala7321.duckmod.DuckMod;
 
 public class ModStatusEffects {
-    public static final StatusEffect DUCK_LEADER = new ModStatusEffect(
+    public static final StatusEffect DUCK_LEADER = new ModStatusEffectProvider(
             StatusEffectCategory.BENEFICIAL, 0x0D520B);
 
     public static void registerStatusEffects() {

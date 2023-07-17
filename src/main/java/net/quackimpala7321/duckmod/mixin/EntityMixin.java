@@ -19,7 +19,7 @@ public abstract class EntityMixin {
             double xOffset = duckEntity.isOnLeft() ? -0.3 : 0.3;
             double yOffset = playerEntity.getY() + playerEntity.getMountedHeightOffset() + duckEntity.onPlayerHeightOffset() + duckEntity.getHeightOffset();
 
-            Vec3d vec3d = new Vec3d(xOffset, 0.0, 0.0).rotateY(-playerEntity.headYaw * ((float)Math.PI / 180));
+            Vec3d vec3d = new Vec3d(-xOffset, 0.0, 0.0).rotateY(-playerEntity.headYaw * ((float)Math.PI / 180));
             positionUpdater.accept(duckEntity, playerEntity.getX() + vec3d.x, yOffset, playerEntity.getZ() + vec3d.z);
 
             ci.cancel();
