@@ -5,24 +5,21 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
+import net.minecraft.entity.ai.control.MoveControl;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageSources;
-import net.minecraft.entity.damage.DamageType;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.passive.TameableShoulderEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.Item;
@@ -31,8 +28,6 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -47,7 +42,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import net.quackimpala7321.duckmod.DuckMod;
 import net.quackimpala7321.duckmod.ModNetworkingConstants;
+import net.quackimpala7321.duckmod.ModParticles;
 import net.quackimpala7321.duckmod.ModSoundEvents;
+import net.quackimpala7321.duckmod.advancement.ModCriteria;
 import net.quackimpala7321.duckmod.entity.ModEntities;
 import net.quackimpala7321.duckmod.item.ModItems;
 import net.quackimpala7321.duckmod.item.custom.DuckFeatherItem;
@@ -62,12 +59,12 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
     public float flapSpeed = 1.0f;
     private float field_28639 = 1.0f;
     public int eggLayTime = this.random.nextInt(6000) + 6000;
-    private boolean onPlayer;
     private boolean left;
+    private int splashTicks;
 
     private int ticks = 0;
 
-    private static final Item TAMING_ITEM = Items.MUSHROOM_STEW;
+    private static final Item TAMING_ITEM = Items.BAKED_POTATO;
 
     private static final Ingredient BREEDING_INGREDIENT = Ingredient.ofItems(
             Items.BREAD
@@ -91,9 +88,9 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
     public static final float TAMED_SPEED = DuckMod.CONFIG.getValue("duck.tamed_speed").getAsFloat();
 
     public DuckEntity(EntityType<? extends TameableEntity> entityType, World world) {
-        super(entityType, world);
+        super(ModEntities.DUCK_ENTITY, world);
 
-        this.onPlayer = false;
+        this.moveControl = new DuckMoveControl(this);
         setTamed(false);
         setPathfindingPenalty(PathNodeType.WATER, 0.0f);
         setPathfindingPenalty(PathNodeType.POWDER_SNOW, -1.0f);
@@ -112,12 +109,12 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
         this.goalSelector.add(0, new SwimGoal(this));
         this.goalSelector.add(1, new SitGoal(this));
         this.goalSelector.add(2, new DuckProjectileAttackGoal(this, 1.0, 30, 20));
-        this.goalSelector.add(3, new DuckPounceGoal(this, 0.6f));
+        this.goalSelector.add(3, new ExplosivePounceGoal(this, 0.6f));
         this.goalSelector.add(4, new MeleeAttackGoal(this, 1.5, true));
         this.goalSelector.add(5, new EscapeDangerGoal(this, 1.4));
         this.goalSelector.add(6, new FollowOwnerGoal(this, 1.0, 10.0f, 2.0f, false));
         this.goalSelector.add(7, new AnimalMateGoal(this, 1.0));
-        this.goalSelector.add(8, new SitOnPlayerGoal(this));
+        this.goalSelector.add(8, new SitOnOwnerGoal(this));
         this.goalSelector.add(9, new TemptGoal(this, 1.0, TEMPT_INGREDIENT, false));
         this.goalSelector.add(10, new FollowParentGoal(this, 1.1));
         this.goalSelector.add(11, new LookAtEntityGoal(this, PlayerEntity.class, 6.0f));
@@ -130,7 +127,7 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
 
     @Override
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
-        if(isOwner(player) && isOnPlayer()) return ActionResult.PASS;
+        if(isOwner(player) && isOnOwner()) return ActionResult.PASS;
 
         ItemStack itemStack = player.getStackInHand(hand);
         Item item = itemStack.getItem();
@@ -175,11 +172,8 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
 
     @Override
     public boolean canAttackWithOwner(LivingEntity target, LivingEntity owner) {
-        if ((target instanceof CreeperEntity || target instanceof GhastEntity) && !isOnPlayer()) {
+        if ((target instanceof CreeperEntity || target instanceof GhastEntity) && !isOnOwner()) {
             return false;
-        }
-        if (target instanceof DuckEntity duckEntity) {
-            return !duckEntity.isTamed() || duckEntity.getOwner() != owner;
         }
         if (target instanceof PlayerEntity && owner instanceof PlayerEntity && !((PlayerEntity)owner).shouldDamagePlayer((PlayerEntity)target)) {
             return false;
@@ -205,7 +199,7 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
         }
     }
 
-    private void setSit(boolean sitting) {
+    public void setSit(boolean sitting) {
         setInSittingPose(sitting);
         super.setSitting(sitting);
     }
@@ -217,31 +211,60 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
         this.prevMaxWingDeviation = this.maxWingDeviation;
         this.maxWingDeviation += (this.isOnGround() ? -1.0f : 4.0f) * 0.3f;
         this.maxWingDeviation = MathHelper.clamp(this.maxWingDeviation, 0.0f, 1.0f);
+        if(this.isTouchingWater()) {
+            this.maxWingDeviation = 0.7f;
+        }
+        if(this.isOnGround()) {
+            this.maxWingDeviation = 0;
+        }
         if (!this.isOnGround() && this.flapSpeed < 1.0f) {
             this.flapSpeed = 1.0f;
         }
-        this.flapSpeed *= 0.9f;
+        this.flapSpeed *= (this.isTouchingWater() ? 0.3f : 0.6f);
         Vec3d vec3d = this.getVelocity();
         if (!this.isOnGround() && vec3d.y < 0.0) {
             this.setVelocity(vec3d.multiply(1.0, isTamed() && getTarget() != null ? 1.0 : 0.6, 1.0));
         }
         this.flapProgress += this.flapSpeed * 2.0f;
-        if (!this.getWorld().isClient && this.isAlive() && !this.isBaby() && !this.isOnPlayer() && --this.eggLayTime <= 0) {
+        if (!this.getWorld().isClient && this.isAlive() && !this.isBaby() && !this.isOnOwner() && --this.eggLayTime <= 0) {
             this.playSound(SoundEvents.ENTITY_CHICKEN_EGG, 1.0f, (this.random.nextFloat() - this.random.nextFloat()) * 0.2f + 1.0f);
             this.dropItem(ModItems.DUCK_EGG);
             this.emitGameEvent(GameEvent.ENTITY_PLACE);
             this.eggLayTime = this.random.nextInt(6000) + 6000;
         }
+
+        this.splashTicks++;
+        if(this.splashTicks >= 3 && getWorld().isClient && !this.isOnOwner() && this.isTouchingWater() && this.isAlive()) {
+            spawnSplashParticles(getWorld());
+            this.splashTicks = 0;
+        }
+    }
+
+    private void spawnSplashParticles(World world) {
+        for(int i=0; i<3; i++) {
+            world.addParticle(ModParticles.DUCK_SPLASH, this.getX(), this.getY(), this.getZ(),
+                    0-(this.getVelocity().x + (random.nextFloat() * 0.5) - 0.25), 0.3, 0-(this.getVelocity().z + (random.nextFloat() * 0.5) - 0.25));
+        }
     }
 
     @Override
     public boolean isInvulnerableTo(DamageSource damageSource) {
-        return (damageSource.getTypeRegistryEntry().matchesKey(DamageTypes.IN_WALL) && isOnPlayer()) || super.isInvulnerableTo(damageSource);
+        return (damageSource.getTypeRegistryEntry().matchesKey(DamageTypes.IN_WALL) && isOnOwner()) || super.isInvulnerableTo(damageSource);
     }
 
     @Override
-    protected int computeFallDamage(float fallDistance, float damageMultiplier) {
-        return 0;
+    public boolean isPushedByFluids() {
+        return false;
+    }
+
+    @Override
+    public boolean canBreatheInWater() {
+        return true;
+    }
+
+    @Override
+    public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource) {
+        return false;
     }
 
     @Override
@@ -283,8 +306,10 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
         return 0.5;
     }
 
-    public boolean isOnPlayer() {
-        return this.onPlayer;
+    public boolean isOnOwner() {
+        if(this.getOwner() == null) return false;
+
+        return this.getOwner().getPassengerList().contains(this);
     }
 
     public boolean isOnLeft() {
@@ -293,24 +318,40 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
 
     public void sitOnOwner() {
         if(getOwner() == null) return;
-        this.onPlayer = true;
 
-        this.left = !getOwner().hasPassengers();
-
-        this.ticks = 100;
-        this.startRiding(this.getOwner(), true);
+        this.startRiding(this.getOwner());
     }
 
     public void dismountOwner() {
-        this.onPlayer = false;
         this.ticks = 0;
         this.stopRiding();
+    }
+
+    @Override
+    public boolean startRiding(Entity entity) {
+        if(entity instanceof PlayerEntity player && this.isOwner(player)) {
+            this.left = player.getPassengerList().stream()
+                    .noneMatch(entity1 -> (entity1 instanceof DuckEntity duckEntity && duckEntity.isOnLeft()));
+
+            this.ticks = 100;
+
+            if(!this.getWorld().isClient) {
+                ModCriteria.DUCK_ON_HEAD.trigger((ServerPlayerEntity) player, this);
+            }
+
+        }
+        return super.startRiding(entity);
+    }
+
+    @Override
+    public void stopRiding() {
+        super.stopRiding();
     }
 
     public boolean canSitOnPlayer() {
         if(this.getOwner() == null) return false;
 
-        return this.ticks > 100 && this.getOwner().getPassengerList().size() < 2;
+        return this.ticks > 100;
     }
 
     @Override
@@ -402,6 +443,27 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
     }
 }
 
+class DuckMoveControl extends MoveControl {
+    private final DuckEntity duckEntity;
+
+    DuckMoveControl(DuckEntity duckEntity) {
+        super(duckEntity);
+        this.duckEntity = duckEntity;
+    }
+
+    private void updateVelocity() {
+        if(duckEntity.isTouchingWater()) {
+            duckEntity.setMovementSpeed(duckEntity.getMovementSpeed() * 5f);
+        }
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        updateVelocity();
+    }
+}
+
 class DuckProjectileAttackGoal extends ProjectileAttackGoal {
     private final DuckEntity mob;
 
@@ -413,16 +475,16 @@ class DuckProjectileAttackGoal extends ProjectileAttackGoal {
 
     @Override
     public boolean canStart() {
-        return super.canStart() && mob.isOnPlayer();
+        return super.canStart() && mob.isOnOwner();
     }
 }
 
-class SitOnPlayerGoal extends Goal {
+class SitOnOwnerGoal extends Goal {
     private final DuckEntity mob;
     private ServerPlayerEntity owner;
     private boolean mounted;
 
-    public SitOnPlayerGoal(DuckEntity mob) {
+    public SitOnOwnerGoal(DuckEntity mob) {
         this.mob = mob;
     }
 

@@ -4,57 +4,94 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.quackimpala7321.duckmod.DuckMod;
+import net.quackimpala7321.duckmod.entity.ModEntities;
+import net.quackimpala7321.duckmod.entity.custom.DuckEntity;
 import net.quackimpala7321.duckmod.item.ModItems;
+import org.jetbrains.annotations.Nullable;
 
 public class EggIncubatorBlock extends Block {
     public static final int MAX_AGE = 3;
 
     private static final VoxelShape SHAPE = Block.createCuboidShape(2.0, 0.0, 2.0, 14.0, 16.0, 14.0);
-    private static final BooleanProperty HAS_EGG = BooleanProperty.of("has_egg");
+    private static final EnumProperty<EggType> EGG_TYPE = EnumProperty.of("egg", EggType.class);
     public static final IntProperty AGE = IntProperty.of("age", 0, MAX_AGE);
 
     public EggIncubatorBlock(Settings settings) {
         super(settings);
         setDefaultState(getDefaultState()
-                .with(HAS_EGG, false)
+                .with(EGG_TYPE, EggType.NONE)
                 .with(AGE, 0));
     }
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        ItemStack itemStack = player.getStackInHand(hand);
+        Item item = itemStack.getItem();
+
         if(hasEgg(state)) {
             if(getAge(state) < MAX_AGE)
                 return ActionResult.FAIL;
 
-            world.setBlockState(pos, state.with(HAS_EGG, false).with(AGE, 0));
-            player.giveItemStack(new ItemStack(ModItems.DUCK_EGG, 1));
+            if(!world.isClient) {
+                if(state.get(EGG_TYPE) == EggType.DUCK_BOSS) {
+                    world.createExplosion(null, pos.getX(), pos.getY(), pos.getZ(), 1.0f, false, World.ExplosionSourceType.BLOCK);
+
+                    DuckEntity duckEntity = ModEntities.DUCK_ENTITY.create(world);
+                    if(duckEntity == null) return ActionResult.CONSUME;
+
+                    duckEntity.refreshPositionAndAngles(pos, (float) Math.toRadians(90), 0.0f);
+                    world.spawnEntity(duckEntity);
+                } else {
+                    world.setBlockState(pos, state.with(EGG_TYPE, EggType.NONE).with(AGE, 0));
+                }
+            }
 
             return ActionResult.SUCCESS;
         }
 
-        if(player.getStackInHand(Hand.MAIN_HAND).getItem() != Items.EGG)
-            return ActionResult.FAIL;
+        if(!world.isClient) {
+            BlockState blockState = setEggType(state, item);
 
-        world.setBlockState(pos, state.with(HAS_EGG, true));
+            if(blockState != null) {
+                world.setBlockState(pos, blockState);
+            }
+        }
 
         if(!player.getAbilities().creativeMode)
-            player.getStackInHand(Hand.MAIN_HAND).decrement(1);
+            itemStack.decrement(1);
 
         return ActionResult.SUCCESS;
+    }
+
+    @Nullable
+    private BlockState setEggType(BlockState state, Item item) {
+        if (item == Items.EGG) {
+            return state.with(EGG_TYPE, EggType.CHICKEN);
+        } else if (item == ModItems.DUCK_EGG) {
+            return state.with(EGG_TYPE, EggType.DUCK);
+        } else if (item == ModItems.DUCK_FEATHER_ITEM) {
+            return state.with(EGG_TYPE, EggType.DUCK_BOSS);
+        }
+
+        return null;
     }
 
     @Override
@@ -69,7 +106,25 @@ public class EggIncubatorBlock extends Block {
     }
 
     private boolean hasEgg(BlockState state) {
-        return state.get(HAS_EGG);
+        return state.get(EGG_TYPE) != EggType.NONE;
+    }
+
+    public enum EggType implements StringIdentifiable {
+        CHICKEN("chicken"),
+        DUCK("duck"),
+        DUCK_BOSS("duck_boss"),
+        NONE("none");
+
+        private final String name;
+
+        EggType (String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String asString() {
+            return this.name;
+        }
     }
 
     @Override
@@ -84,6 +139,6 @@ public class EggIncubatorBlock extends Block {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(HAS_EGG, AGE);
+        builder.add(EGG_TYPE, AGE);
     }
 }

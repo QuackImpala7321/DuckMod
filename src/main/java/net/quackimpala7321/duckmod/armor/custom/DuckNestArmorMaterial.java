@@ -25,7 +25,7 @@ public class DuckNestArmorMaterial implements ArmorMaterial {
 
     @Override
     public SoundEvent getEquipSound() {
-        return SoundEvents.ITEM_ARMOR_EQUIP_LEATHER;
+        return SoundEvents.ITEM_ARMOR_EQUIP_GENERIC;
     }
 
     @Override

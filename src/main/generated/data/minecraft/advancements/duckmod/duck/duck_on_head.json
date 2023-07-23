@@ -1,0 +1,41 @@
+{
+  "parent": "minecraft:duckmod/duck/root",
+  "criteria": {
+    "duck_on_head": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "duckmod:duck"
+            }
+          }
+        ]
+      },
+      "trigger": "duckmod:duck_on_head"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancement.duckmod.duck_on_head.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "duckmod:duck_nest",
+      "nbt": "{Damage:0}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancement.duckmod.duck_on_head.title"
+    }
+  },
+  "requirements": [
+    [
+      "duck_on_head"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

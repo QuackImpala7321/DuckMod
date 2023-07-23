@@ -1,0 +1,40 @@
+{
+  "criteria": {
+    "tamed_duck": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "duckmod:duck"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:tame_animal"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "background": "minecraft:textures/gui/advancements/backgrounds/adventure.png",
+    "description": {
+      "translate": "advancement.duckmod.duck.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "duckmod:duck_ingot"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancement.duckmod.duck.title"
+    }
+  },
+  "requirements": [
+    [
+      "tamed_duck"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

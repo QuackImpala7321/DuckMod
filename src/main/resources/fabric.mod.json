@@ -8,8 +8,9 @@
 		"QuackImpala7321"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://sites.google.com/view/quacksgames/home",
+		"sources": "https://github.com/QuackImpala7321/DuckMod",
+		"issues": "https://github.com/QuackImpala7321/DuckMod/issues"
 	},
 	"license": "MIT License",
 	"icon": "assets/duckmod/icon.png",

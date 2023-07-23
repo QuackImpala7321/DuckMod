@@ -10,7 +10,23 @@
         "model": "duckmod:block/incubated_egg"
       },
       "when": {
-        "has_egg": "true"
+        "egg": "chicken"
+      }
+    },
+    {
+      "apply": {
+        "model": "duckmod:block/incubated_egg"
+      },
+      "when": {
+        "egg": "duck"
+      }
+    },
+    {
+      "apply": {
+        "model": "duckmod:block/incubated_egg"
+      },
+      "when": {
+        "egg": "duck_boss"
       }
     }
   ]

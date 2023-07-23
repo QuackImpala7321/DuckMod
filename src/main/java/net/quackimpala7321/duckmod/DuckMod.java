@@ -3,6 +3,7 @@ package net.quackimpala7321.duckmod;
 import com.google.gson.JsonObject;
 import net.fabricmc.api.ModInitializer;
 
+import net.quackimpala7321.duckmod.advancement.ModCriteria;
 import net.quackimpala7321.duckmod.block.ModBlockEntities;
 import net.quackimpala7321.duckmod.block.ModBlocks;
 import net.quackimpala7321.duckmod.config.ModConfig;
@@ -22,24 +23,34 @@ public class DuckMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        DuckMod.registerModConfig();
+
+        ModNetworkingConstants.registerNetworkingConstants();
+
+        ModItems.registerModItems();
+        ModBlocks.registerModBlocks();
+        ModBlockEntities.registerModBlockEntities();
+        ModEntities.registerModEntities();
+
+        ModEntitySpawns.addSpawns();
+        ModBiomeTags.registerBiomeTags();
+        ModItemGroups.registerItemGroups();
+
+        ModStatusEffects.registerStatusEffects();
+        ModSoundEvents.registerSoundEvents();
+        ModParticles.registerParticles();
+
+        ModCriteria.registerCriteria();
+    }
+
+    public static void registerModConfig() {
         CONFIG = new ModConfig(MOD_ID + ".config.json", createDefaultConfig());
         CONFIG.load();
 
         DuckMod.LOGGER.info("Loading Config for " + MOD_ID);
-
-        ModNetworkingConstants.registerNetworkingConstants();
-        ModItems.registerModItems();
-        ModBlocks.registerModBlocks();
-        ModBlockEntities.registerModBlockEntities();
-        ModStatusEffects.registerStatusEffects();
-        ModEntities.registerModEntities();
-        ModBiomeTags.registerBiomeTags();
-        ModEntitySpawns.addSpawns();
-        ModItemGroups.registerItemGroups();
-        ModSoundEvents.registerSoundEvents();
     }
 
-    private JsonObject createDefaultConfig() {
+    private static JsonObject createDefaultConfig() {
         JsonObject rootObject = new JsonObject();
 
         JsonObject duck = new JsonObject();

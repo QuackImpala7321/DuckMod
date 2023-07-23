@@ -1,4 +1,5 @@
 {
+  "parent": "minecraft:duckmod/duck/root",
   "criteria": {
     "duck_armor": {
       "conditions": {
@@ -30,14 +31,14 @@
   },
   "display": {
     "announce_to_chat": true,
-    "background": "minecraft:textures/gui/advancements/backgrounds/adventure.png",
     "description": {
       "translate": "advancement.duckmod.duckatron.description"
     },
     "frame": "challenge",
     "hidden": false,
     "icon": {
-      "item": "duckmod:duck_ingot"
+      "item": "duckmod:duck_chestplate",
+      "nbt": "{Damage:0}"
     },
     "show_toast": true,
     "title": {

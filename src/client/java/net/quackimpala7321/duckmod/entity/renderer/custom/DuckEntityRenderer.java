@@ -4,7 +4,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.MobEntityRenderer;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
@@ -25,7 +24,7 @@ public class DuckEntityRenderer extends MobEntityRenderer<DuckEntity, DuckEntity
     public boolean shouldRender(DuckEntity duckEntity, Frustum frustum, double d, double e, double f) {
         PlayerEntity player = MinecraftClient.getInstance().player;
 
-        if(duckEntity.isOnPlayer() && duckEntity.isOwner(player)) {
+        if(duckEntity.isOnOwner() && duckEntity.isOwner(player)) {
             return CameraUtil.getCamera().isThirdPerson();
         }
 

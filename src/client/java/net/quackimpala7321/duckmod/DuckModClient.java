@@ -21,6 +21,7 @@ public class DuckModClient implements ClientModInitializer {
     public void onInitializeClient() {
         renderBlocks();
         ModEntityRenderers.registerModEntityRenderers();
+        ClientModParticles.registerClientParticles();
 
         ClientPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.DUCK_MOUNT_TOGGLE_ID, ((client, handler, buf, responseSender) -> {
             int id = buf.readInt();

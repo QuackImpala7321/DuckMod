@@ -8,18 +8,16 @@ import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
-import net.quackimpala7321.duckmod.DuckMod;
-import net.quackimpala7321.duckmod.ModSoundEvents;
 
 import java.util.List;
 import java.util.function.Predicate;
 
-public class DuckPounceGoal extends PounceAtTargetGoal {
+public class ExplosivePounceGoal extends PounceAtTargetGoal {
     private final TameableEntity mob;
 
     private static final Predicate<Entity> ALLOWED = Entity::isAlive;
 
-    public DuckPounceGoal(DuckEntity mob, float velocity) {
+    public ExplosivePounceGoal(DuckEntity mob, float velocity) {
         super(mob, velocity);
         this.mob = mob;
     }

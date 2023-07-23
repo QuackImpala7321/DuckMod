@@ -36,6 +36,12 @@
 
   "subtitles.duckmod.item.armor.equip_duck": "Duck armor quacks",
 
+  "advancement.duckmod.duck.title": "No way",
+  "advancement.duckmod.duck.description": "Duck!",
+
+  "advancement.duckmod.duck_on_head.title": "Get sat on",
+  "advancement.duckmod.duck_on_head.description": "There is now a duck on your head",
+
   "advancement.duckmod.duckatron.title": "The Duckatron",
   "advancement.duckmod.duckatron.description": "Get a full set of Duck Armor",
 
