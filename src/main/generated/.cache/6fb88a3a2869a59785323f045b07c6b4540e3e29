@@ -1,4 +1,4 @@
-// 1.20.1	2023-07-21T15:04:08.2250326	Duck Mod/Advancements
-6e3dbcb31df94ee967268ee517a116d20230f7d6 data\minecraft\advancements\duckmod\duck\duck_on_head.json
-d47174c837880327747bedd2149cc9f0cffc8b3e data\minecraft\advancements\duckmod\duck\duckatron.json
-f89764ce624cf47081135c5e8431b50ee817a3d2 data\minecraft\advancements\duckmod\duck\root.json
+// 1.20.1	2023-07-24T22:33:47.8799897	Duck Mod/Advancements
+f89764ce624cf47081135c5e8431b50ee817a3d2 data\duckmod\advancements\duck\root.json
+8b0086294cfc7eca98154ff3a21b816ef363c90f data\duckmod\advancements\duck\duck_on_head.json
+23af8be83cd6d768ceef33223788f08369a1aea8 data\duckmod\advancements\duck\duckatron.json

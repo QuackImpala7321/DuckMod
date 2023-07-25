@@ -1,8 +1,11 @@
 package net.quackimpala7321.duckmod.item;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.*;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -36,5 +39,12 @@ public class ModItemGroups {
 
     public static void registerItemGroups() {
         DuckMod.LOGGER.info("Registering Item Groups for " + DuckMod.MOD_ID);
+
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(content -> content.addBefore(Items.NETHERITE_HELMET, ModItems.DUCK_HELMET));
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(content -> content.addAfter(ModItems.DUCK_HELMET, ModItems.DUCK_CHESTPLATE));
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(content -> content.addAfter(ModItems.DUCK_CHESTPLATE, ModItems.DUCK_LEGGINGS));
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(content -> content.addAfter(ModItems.DUCK_LEGGINGS, ModItems.DUCK_BOOTS));
+
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(content -> content.addAfter(Items.TURTLE_HELMET, ModItems.DUCK_NEST));
     }
 }

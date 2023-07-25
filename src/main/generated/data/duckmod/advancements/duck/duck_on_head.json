@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:duckmod/duck/root",
+  "parent": "duckmod:duck/root",
   "criteria": {
     "duck_on_head": {
       "conditions": {

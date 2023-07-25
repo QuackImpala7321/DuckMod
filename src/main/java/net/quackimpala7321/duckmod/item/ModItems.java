@@ -35,21 +35,17 @@ public class ModItems {
     public static final Item DUCK_SPAWN_EGG = registerItem("duck_spawn_egg",
             new SpawnEggItem(ModEntities.DUCK_ENTITY, 0x36A312, 0xEFAC28, new FabricItemSettings()));
 
-    private static final ArmorMaterial DUCK_ARMOR_MATERIAL = new DuckArmorMaterial();
-
     public static final Item DUCK_HELMET = registerItem("duck_helmet",
-            new ArmorItem(DUCK_ARMOR_MATERIAL, ArmorItem.Type.HELMET, new FabricItemSettings()));
+            new ArmorItem(ModArmorMaterials.DUCK_ARMOR_MATERIAL, ArmorItem.Type.HELMET, new FabricItemSettings()));
     public static final Item DUCK_CHESTPLATE = registerItem("duck_chestplate",
-            new ArmorItem(DUCK_ARMOR_MATERIAL, ArmorItem.Type.CHESTPLATE, new FabricItemSettings()));
+            new ArmorItem(ModArmorMaterials.DUCK_ARMOR_MATERIAL, ArmorItem.Type.CHESTPLATE, new FabricItemSettings()));
     public static final Item DUCK_LEGGINGS = registerItem("duck_leggings",
-            new ArmorItem(DUCK_ARMOR_MATERIAL, ArmorItem.Type.LEGGINGS, new FabricItemSettings()));
+            new ArmorItem(ModArmorMaterials.DUCK_ARMOR_MATERIAL, ArmorItem.Type.LEGGINGS, new FabricItemSettings()));
     public static final Item DUCK_BOOTS = registerItem("duck_boots",
-            new ArmorItem(DUCK_ARMOR_MATERIAL, ArmorItem.Type.BOOTS, new FabricItemSettings()));
-
-    private static final ArmorMaterial DUCK_NEST_ARMOR_MATERIAL = new DuckNestArmorMaterial();
+            new ArmorItem(ModArmorMaterials.DUCK_ARMOR_MATERIAL, ArmorItem.Type.BOOTS, new FabricItemSettings()));
 
     public static final Item DUCK_NEST = registerItem("duck_nest",
-            new DuckNestItem(DUCK_NEST_ARMOR_MATERIAL, ArmorItem.Type.HELMET, new FabricItemSettings()));
+            new DuckNestItem(ModArmorMaterials.DUCK_NEST_ARMOR_MATERIAL, ArmorItem.Type.HELMET, new FabricItemSettings()));
 
     public static final Item DUCK_FEATHER_ITEM = registerItem("duck_feather",
             new DuckFeatherItem(new FabricItemSettings()));

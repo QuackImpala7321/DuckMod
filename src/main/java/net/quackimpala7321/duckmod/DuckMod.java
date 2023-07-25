@@ -9,6 +9,7 @@ import net.quackimpala7321.duckmod.block.ModBlocks;
 import net.quackimpala7321.duckmod.config.ModConfig;
 import net.quackimpala7321.duckmod.entity.ModEntities;
 import net.quackimpala7321.duckmod.entity.ModEntitySpawns;
+import net.quackimpala7321.duckmod.item.ModArmorMaterials;
 import net.quackimpala7321.duckmod.item.ModItemGroups;
 import net.quackimpala7321.duckmod.item.ModItems;
 import net.quackimpala7321.duckmod.statuseffect.ModStatusEffects;
@@ -26,12 +27,14 @@ public class DuckMod implements ModInitializer {
         DuckMod.registerModConfig();
 
         ModNetworkingConstants.registerNetworkingConstants();
+        ModTrackedData.registerTrackedData();
 
         ModItems.registerModItems();
         ModBlocks.registerModBlocks();
         ModBlockEntities.registerModBlockEntities();
         ModEntities.registerModEntities();
 
+        ModArmorMaterials.registerArmorMaterials();
         ModEntitySpawns.addSpawns();
         ModBiomeTags.registerBiomeTags();
         ModItemGroups.registerItemGroups();

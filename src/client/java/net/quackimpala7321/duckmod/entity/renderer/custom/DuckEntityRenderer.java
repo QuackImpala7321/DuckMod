@@ -25,7 +25,7 @@ public class DuckEntityRenderer extends MobEntityRenderer<DuckEntity, DuckEntity
         PlayerEntity player = MinecraftClient.getInstance().player;
 
         if(duckEntity.isOnOwner() && duckEntity.isOwner(player)) {
-            return CameraUtil.getCamera().isThirdPerson();
+            return CameraUtil.getCamera().isThirdPerson() && super.shouldRender(duckEntity, frustum, d, e, f);
         }
 
         return super.shouldRender(duckEntity, frustum, d, e, f);

@@ -5,6 +5,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.math.Vec3d;
+import net.quackimpala7321.duckmod.DuckBarManager;
+import net.quackimpala7321.duckmod.DuckBarManagerAccessor;
+import net.quackimpala7321.duckmod.DuckMod;
 import net.quackimpala7321.duckmod.entity.custom.DuckEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,26 +21,37 @@ public abstract class EntityMixin {
     public void updatePassengerPositionMixin(Entity passenger, Entity.PositionUpdater positionUpdater, CallbackInfo ci) {
         Entity thisEntity = (Entity) (Object) this;
         if(!(thisEntity instanceof PlayerEntity playerEntity)) return;
-        if(passenger instanceof DuckEntity duckEntity && duckEntity.isOnOwner()) {
-            double xOffset = duckEntity.isOnLeft() ? -0.3 : 0.3;
-            double yOffset = playerEntity.getY() + playerEntity.getMountedHeightOffset() + duckEntity.onPlayerHeightOffset() + duckEntity.getHeightOffset();
+        if(!(passenger instanceof DuckEntity duckEntity && duckEntity.isOnOwner())) return;
 
-            Vec3d vec3d = new Vec3d(-xOffset, 0.0, 0.0).rotateY(-playerEntity.headYaw * ((float)Math.PI / 180));
-            positionUpdater.accept(duckEntity, playerEntity.getX() + vec3d.x, yOffset, playerEntity.getZ() + vec3d.z);
+        double xOffset = switch (duckEntity.getSittingPosition()) {
+            case LEFT -> -0.3;
+            case RIGHT -> 0.3;
+            default -> 0.0;
+        };
+        double yOffset = playerEntity.getY() + playerEntity.getMountedHeightOffset() + duckEntity.onPlayerHeightOffset() + duckEntity.getHeightOffset();
+        double zOffset = duckEntity.getSittingPosition() == DuckEntity.SitPosition.BAG ? 0.5 : 0.0;
 
-            ci.cancel();
+        Vec3d vec3d;
+
+        if(duckEntity.getSittingPosition() == DuckEntity.SitPosition.BAG) {
+            vec3d = new Vec3d(0.0, 0.0, zOffset).rotateY(-playerEntity.bodyYaw * ((float)Math.PI / 180));
+        } else {
+            vec3d = new Vec3d(-xOffset, 0.0, 0.0).rotateY(-playerEntity.headYaw * ((float)Math.PI / 180));
         }
+
+        positionUpdater.accept(duckEntity, playerEntity.getX() + vec3d.x, yOffset, playerEntity.getZ() + vec3d.z);
+
+        ci.cancel();
     }
 
     @Inject(method = "canAddPassenger", at = @At("HEAD"), cancellable = true)
     public void canAddPassengerMixin(Entity passenger, CallbackInfoReturnable<Boolean> cir) {
         Entity thisEntity = (Entity) (Object) this;
+        if(!(thisEntity instanceof DuckBarManagerAccessor)) return;
+        DuckBarManager duckBarManager = ((DuckBarManagerAccessor) thisEntity).getDuckBarManager();
 
         if(passenger instanceof DuckEntity) {
-            int ducks = (int) thisEntity.getPassengerList().stream()
-                    .filter(entity -> entity instanceof DuckEntity).count();
-
-            cir.setReturnValue(ducks < 2);
+            cir.setReturnValue(duckBarManager.getDucks().size() < duckBarManager.getSlots());
         }
     }
 }

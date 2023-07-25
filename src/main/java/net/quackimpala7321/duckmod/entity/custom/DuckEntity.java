@@ -14,7 +14,6 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
@@ -34,22 +33,21 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.EntityView;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
-import net.quackimpala7321.duckmod.DuckMod;
-import net.quackimpala7321.duckmod.ModNetworkingConstants;
-import net.quackimpala7321.duckmod.ModParticles;
-import net.quackimpala7321.duckmod.ModSoundEvents;
+import net.quackimpala7321.duckmod.*;
 import net.quackimpala7321.duckmod.advancement.ModCriteria;
 import net.quackimpala7321.duckmod.entity.ModEntities;
 import net.quackimpala7321.duckmod.item.ModItems;
 import net.quackimpala7321.duckmod.item.custom.DuckFeatherItem;
-import net.quackimpala7321.duckmod.statuseffect.ModStatusEffects;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 public class DuckEntity extends TameableEntity implements RangedAttackMob {
     public float flapProgress;
@@ -59,7 +57,6 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
     public float flapSpeed = 1.0f;
     private float field_28639 = 1.0f;
     public int eggLayTime = this.random.nextInt(6000) + 6000;
-    private boolean left;
     private int splashTicks;
 
     private int ticks = 0;
@@ -74,10 +71,8 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
             TAMING_ITEM
     );
 
-    private static final TrackedData<Boolean> SITTING_ON_PLAYER =
-            DataTracker.registerData(DuckEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Boolean> LEFT =
-            DataTracker.registerData(DuckEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<SitPosition> SITTING_POSITION =
+            DataTracker.registerData(DuckEntity.class, ModTrackedData.SITTING_POSITON);
 
     public static final float WILD_MAX_HEALTH = DuckMod.CONFIG.getValue("duck.wild_max_health").getAsFloat();
     public static final float WILD_DAMAGE = DuckMod.CONFIG.getValue("duck.wild_damage").getAsFloat();
@@ -181,7 +176,7 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
         if (target instanceof AbstractHorseEntity && ((AbstractHorseEntity)target).isTame()) {
             return false;
         }
-        return !(target instanceof TameableEntity) || !((TameableEntity)target).isTamed();
+        return !(target instanceof TameableEntity tameableEntity && tameableEntity.getOwner() == this.getOwner());
     }
 
     @Override
@@ -270,16 +265,14 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
     @Override
     protected void initDataTracker() {
         super.initDataTracker();
-        this.dataTracker.startTracking(SITTING_ON_PLAYER, false);
-        this.dataTracker.startTracking(LEFT, true);
+        this.dataTracker.startTracking(SITTING_POSITION, SitPosition.NONE);
     }
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
         nbt.putInt("EggLayTime", this.eggLayTime);
-        nbt.putBoolean("SittingOnPlayer", this.dataTracker.get(SITTING_ON_PLAYER));
-        nbt.putBoolean("Left", this.dataTracker.get(LEFT));
+        nbt.putByte("SitPosition", (byte) this.dataTracker.get(SITTING_POSITION).getId());
     }
 
     @Override
@@ -288,11 +281,8 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
         if (nbt.contains("EggLayTime")) {
             this.eggLayTime = nbt.getInt("EggLayTime");
         }
-        if(nbt.contains("SittingOnPlayer")) {
-            this.dataTracker.set(SITTING_ON_PLAYER, nbt.getBoolean("SittingOnPlayer"));
-        }
-        if(nbt.contains("Left")) {
-            this.dataTracker.set(LEFT, nbt.getBoolean("Left"));
+        if(nbt.contains("SitPosition")) {
+            this.dataTracker.set(SITTING_POSITION, SitPosition.getById(nbt.getByte("SitPosition")));
         }
     }
 
@@ -303,17 +293,19 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
     }
 
     public double onPlayerHeightOffset() {
-        return 0.5;
+        return switch (getSittingPosition()) {
+            case LEFT, RIGHT -> 0.5;
+            case BAG -> -0.75;
+            default -> 0.0;
+        };
     }
 
     public boolean isOnOwner() {
-        if(this.getOwner() == null) return false;
-
-        return this.getOwner().getPassengerList().contains(this);
+        return this.dataTracker.get(SITTING_POSITION) != SitPosition.NONE;
     }
 
-    public boolean isOnLeft() {
-        return this.left;
+    public SitPosition getSittingPosition() {
+        return this.dataTracker.get(SITTING_POSITION);
     }
 
     public void sitOnOwner() {
@@ -330,9 +322,31 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
     @Override
     public boolean startRiding(Entity entity) {
         if(entity instanceof PlayerEntity player && this.isOwner(player)) {
-            this.left = player.getPassengerList().stream()
-                    .noneMatch(entity1 -> (entity1 instanceof DuckEntity duckEntity && duckEntity.isOnLeft()));
+            List<Entity> ducks = player.getPassengerList().stream()
+                    .filter(entity1 -> entity1 instanceof DuckEntity duckEntity && duckEntity.getSittingPosition() != SitPosition.NONE)
+                    .toList();
 
+            List<SitPosition> positions = new ArrayList<SitPosition>();
+
+            for(Entity entity1 : ducks) {
+                DuckEntity duckEntity = (DuckEntity) entity1;
+
+                positions.add(duckEntity.getSittingPosition());
+            }
+
+            if(!(player instanceof DuckBarManagerAccessor duckBarManagerAccessor)) return false;
+            DuckBarManager duckBarManager = duckBarManagerAccessor.getDuckBarManager();
+
+            SitPosition target = SitPosition.NONE;
+            for(SitPosition sitPosition : Arrays.stream(SitPosition.values()).limit(duckBarManager.getSlots()).toList()) {
+                if(!positions.contains(sitPosition)) {
+                    target = sitPosition;
+                    break;
+                }
+            }
+
+            if(target == SitPosition.NONE) return false;
+            this.dataTracker.set(SITTING_POSITION, target);
             this.ticks = 100;
 
             if(!this.getWorld().isClient) {
@@ -346,6 +360,16 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
     @Override
     public void stopRiding() {
         super.stopRiding();
+
+        if(!this.getWorld().isClient) {
+            if(!(this.getOwner() instanceof ServerPlayerEntity serverPlayerEntity)) return;
+
+            if(this.isOnOwner() && serverPlayerEntity.isDisconnected()) {
+                this.setSit(true);
+            }
+        }
+
+        this.dataTracker.set(SITTING_POSITION, SitPosition.NONE);
     }
 
     public boolean canSitOnPlayer() {
@@ -362,10 +386,10 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
     @Override
     public boolean isTeammate(Entity other) {
         if(!(other instanceof TameableEntity subject)) {
-            return false;
+            return super.isTeammate(other);
         }
 
-        return this.getOwner() == subject.getOwner();
+        return super.isTeammate(other) || this.getOwner() == subject.getOwner();
     }
 
     @Override
@@ -441,6 +465,38 @@ public class DuckEntity extends TameableEntity implements RangedAttackMob {
 
         this.getWorld().spawnEntity(featherProjectile);
     }
+
+    public enum SitPosition implements StringIdentifiable {
+        LEFT("left", 0),
+        RIGHT("right", 1),
+        BAG("bag", 2),
+        NONE("none", -1);
+
+        private final String name;
+        private final int id;
+
+        SitPosition(String name, int id) {
+            this.name = name;
+            this.id = id;
+        }
+
+        public static SitPosition getById(int id) {
+            Iterator<SitPosition> iterator = Arrays.stream(SitPosition.values())
+                    .filter(sitPosition -> sitPosition.getId() == id)
+                    .iterator();
+
+            return iterator.hasNext() ? iterator.next() : SitPosition.NONE;
+        }
+
+        public int getId() {
+            return this.id;
+        }
+
+        @Override
+        public String asString() {
+            return this.name;
+        }
+    }
 }
 
 class DuckMoveControl extends MoveControl {
@@ -491,7 +547,9 @@ class SitOnOwnerGoal extends Goal {
     @Override
     public boolean canStart() {
         ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity)this.mob.getOwner();
-        boolean bl = serverPlayerEntity != null && !serverPlayerEntity.isSpectator() && !serverPlayerEntity.getAbilities().flying && !serverPlayerEntity.isTouchingWater() && !serverPlayerEntity.inPowderSnow && serverPlayerEntity.hasStatusEffect(ModStatusEffects.DUCK_LEADER);
+        if(serverPlayerEntity == null) return false;
+
+        boolean bl = !serverPlayerEntity.isSpectator() && !serverPlayerEntity.getAbilities().flying && !serverPlayerEntity.isTouchingWater() && !serverPlayerEntity.inPowderSnow;
         return !this.mob.isSitting() && bl && this.mob.canSitOnPlayer();
     }
 
@@ -503,7 +561,13 @@ class SitOnOwnerGoal extends Goal {
 
     @Override
     public boolean shouldContinue() {
-        return !this.owner.isSneaking() && this.owner.hasStatusEffect(ModStatusEffects.DUCK_LEADER);
+        return !this.owner.isSneaking() && canSupportDuck(this.mob.getSittingPosition().getId());
+    }
+
+    private boolean canSupportDuck(int id) {
+        if(!((ServerPlayerEntity) this.owner instanceof DuckBarManagerAccessor duckBarManagerAccessor)) return false;
+
+        return duckBarManagerAccessor.getDuckBarManager().getSlots() > id;
     }
 
     @Override

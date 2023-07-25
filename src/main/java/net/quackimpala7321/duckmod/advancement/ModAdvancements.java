@@ -18,21 +18,21 @@ import java.util.function.Consumer;
 public class ModAdvancements implements Consumer<Consumer<Advancement>> {
     @Override
     public void accept(Consumer<Advancement> consumer) {
-        Advancement rootAdvancement = Advancement.Builder.create()
-                .display(
-                        ModItems.DUCK_INGOT,
-                        createTitle("duck"),
-                        createDescription("duck"),
-                        new Identifier("textures/gui/advancements/backgrounds/adventure.png"),
-                        AdvancementFrame.TASK,
-                        false,
-                        false,
-                        false
-                )
-                .criterion("tamed_duck", TameAnimalCriterion.Conditions.create(EntityPredicate.Builder.create().type(ModEntities.DUCK_ENTITY).build()))
-                .build(consumer, DuckMod.MOD_ID + "/duck/root");
+        Advancement rootAdvancement = ModAdvancements.buildCustom(Advancement.Builder.create()
+                        .display(
+                                ModItems.DUCK_INGOT,
+                                createTitle("duck"),
+                                createDescription("duck"),
+                                new Identifier("textures/gui/advancements/backgrounds/adventure.png"),
+                                AdvancementFrame.TASK,
+                                false,
+                                false,
+                                false
+                        )
+                        .criterion("tamed_duck", TameAnimalCriterion.Conditions.create(EntityPredicate.Builder.create().type(ModEntities.DUCK_ENTITY).build())),
+                consumer, "duck/root");
 
-        Advancement duckOnHeadAdvancement = Advancement.Builder.create().parent(rootAdvancement)
+        Advancement duckOnHeadAdvancement = ModAdvancements.buildCustom(Advancement.Builder.create().parent(rootAdvancement)
                 .display(
                         ModItems.DUCK_NEST,
                         createTitle("duck_on_head"),
@@ -43,10 +43,10 @@ public class ModAdvancements implements Consumer<Consumer<Advancement>> {
                         true,
                         false
                 )
-                .criterion("duck_on_head", DuckOnHeadCriterion.Conditions.create(EntityPredicate.Builder.create().type(ModEntities.DUCK_ENTITY).build()))
-                .build(consumer, DuckMod.MOD_ID + "/duck/duck_on_head");
+                .criterion("duck_on_head", DuckOnHeadCriterion.Conditions.create(EntityPredicate.Builder.create().type(ModEntities.DUCK_ENTITY).build())),
+                consumer, "duck/duck_on_head");
 
-        Advancement duckatronAdvancement = Advancement.Builder.create().parent(rootAdvancement)
+        Advancement duckatronAdvancement = ModAdvancements.buildCustom(Advancement.Builder.create().parent(rootAdvancement)
                 .display(
                         ModItems.DUCK_CHESTPLATE,
                         createTitle("duckatron"),
@@ -59,8 +59,14 @@ public class ModAdvancements implements Consumer<Consumer<Advancement>> {
                 )
                 .rewards(AdvancementRewards.Builder.experience(200))
                 .criterion("duck_armor", InventoryChangedCriterion.Conditions.items(
-                        ModItems.DUCK_HELMET, ModItems.DUCK_CHESTPLATE, ModItems.DUCK_LEGGINGS, ModItems.DUCK_BOOTS))
-                .build(consumer, DuckMod.MOD_ID + "/duck/duckatron");
+                        ModItems.DUCK_HELMET, ModItems.DUCK_CHESTPLATE, ModItems.DUCK_LEGGINGS, ModItems.DUCK_BOOTS)),
+                consumer, "duck/duckatron");
+    }
+
+    private static Advancement buildCustom(Advancement.Builder builder, Consumer<Advancement> consumer, String path) {
+        Advancement advancement = builder.build(new Identifier(DuckMod.MOD_ID, path));
+        consumer.accept(advancement);
+        return advancement;
     }
 
     private Text createTitle(String advancementName) {
