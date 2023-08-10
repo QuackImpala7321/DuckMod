@@ -2,14 +2,12 @@ package net.quackimpala7321.duckmod.mixin;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.math.Vec3d;
 import net.quackimpala7321.duckmod.DuckBarManager;
-import net.quackimpala7321.duckmod.DuckBarManagerAccessor;
-import net.quackimpala7321.duckmod.DuckMod;
-import net.quackimpala7321.duckmod.entity.custom.DuckEntity;
+import net.quackimpala7321.duckmod.PlayerMixinAccessor;
+import net.quackimpala7321.duckmod.entity.DuckEntity;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -17,9 +15,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin {
+    @Unique
+    private final Entity thisEntity = (Entity) (Object) this;
+
     @Inject(method = "updatePassengerPosition(Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/Entity$PositionUpdater;)V", at = @At("HEAD"), cancellable = true)
     public void updatePassengerPositionMixin(Entity passenger, Entity.PositionUpdater positionUpdater, CallbackInfo ci) {
-        Entity thisEntity = (Entity) (Object) this;
         if(!(thisEntity instanceof PlayerEntity playerEntity)) return;
         if(!(passenger instanceof DuckEntity duckEntity && duckEntity.isOnOwner())) return;
 
@@ -47,8 +47,8 @@ public abstract class EntityMixin {
     @Inject(method = "canAddPassenger", at = @At("HEAD"), cancellable = true)
     public void canAddPassengerMixin(Entity passenger, CallbackInfoReturnable<Boolean> cir) {
         Entity thisEntity = (Entity) (Object) this;
-        if(!(thisEntity instanceof DuckBarManagerAccessor)) return;
-        DuckBarManager duckBarManager = ((DuckBarManagerAccessor) thisEntity).getDuckBarManager();
+        if(!(thisEntity instanceof PlayerMixinAccessor)) return;
+        DuckBarManager duckBarManager = ((PlayerMixinAccessor) thisEntity).getDuckBarManager();
 
         if(passenger instanceof DuckEntity) {
             cir.setReturnValue(duckBarManager.getDucks().size() < duckBarManager.getSlots());

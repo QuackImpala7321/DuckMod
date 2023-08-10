@@ -1,0 +1,22 @@
+{
+  "type": "crm:cauldron",
+  "experience": 40,
+  "ingredients": [
+    {
+      "count": 10,
+      "item": "duckmod:duck_egg"
+    },
+    {
+      "count": 20,
+      "item": "duckmod:duck_ingot"
+    },
+    {
+      "count": 2,
+      "item": "minecraft:diamond"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "minecraft:egg"
+  }
+}

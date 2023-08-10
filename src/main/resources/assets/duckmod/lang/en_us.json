@@ -18,8 +18,11 @@
 
   "item.duckmod.duck_spawn_egg": "Duck Spawn Egg",
 
+  "item.duckmod.mysterious_emblem": "Mysterious Emblem",
+
   "block.duckmod.duck_block": "Duck Block",
   "block.duckmod.duck_ore": "Duck Ore",
+  "block.duckmod.deepslate_duck_ore": "Deepslate Duck Ore",
 
   "block.duckmod.egg_incubator": "Egg Incubator",
 
@@ -45,5 +48,8 @@
   "advancement.duckmod.duckatron.title": "The Duckatron",
   "advancement.duckmod.duckatron.description": "Get a full set of Duck Armor",
 
-  "effect.duckmod.duck_leader": "Duck Leader"
+  "effect.duckmod.duck_leader": "Duck Leader",
+
+  "key.categories.duckmod.duck": "Duck Mod",
+  "key.duckmod.duck": "Toggle Gliding"
 }

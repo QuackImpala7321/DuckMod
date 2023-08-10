@@ -2,19 +2,22 @@ package net.quackimpala7321.duckmod;
 
 import com.google.gson.JsonObject;
 import net.fabricmc.api.ModInitializer;
-
-import net.quackimpala7321.duckmod.advancement.ModCriteria;
-import net.quackimpala7321.duckmod.block.ModBlockEntities;
-import net.quackimpala7321.duckmod.block.ModBlocks;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.quackimpala7321.duckmod.config.ModConfig;
-import net.quackimpala7321.duckmod.entity.ModEntities;
-import net.quackimpala7321.duckmod.entity.ModEntitySpawns;
-import net.quackimpala7321.duckmod.item.ModArmorMaterials;
-import net.quackimpala7321.duckmod.item.ModItemGroups;
-import net.quackimpala7321.duckmod.item.ModItems;
-import net.quackimpala7321.duckmod.statuseffect.ModStatusEffects;
+import net.quackimpala7321.duckmod.entity.DuckEntity;
+import net.quackimpala7321.duckmod.registry.*;
+import net.quackimpala7321.duckmod.tag.ModBiomeTags;
+import net.quackimpala7321.duckmod.tag.ModItemTags;
+import net.quackimpala7321.duckmod.util.KeyBindConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class DuckMod implements ModInitializer {
     public static final String MOD_ID = "duckmod";
@@ -25,6 +28,7 @@ public class DuckMod implements ModInitializer {
     @Override
     public void onInitialize() {
         DuckMod.registerModConfig();
+        DuckMod.registerConstants();
 
         ModNetworkingConstants.registerNetworkingConstants();
         ModTrackedData.registerTrackedData();
@@ -36,6 +40,7 @@ public class DuckMod implements ModInitializer {
 
         ModArmorMaterials.registerArmorMaterials();
         ModEntitySpawns.addSpawns();
+        ModItemTags.registerItemTags();
         ModBiomeTags.registerBiomeTags();
         ModItemGroups.registerItemGroups();
 
@@ -44,13 +49,16 @@ public class DuckMod implements ModInitializer {
         ModParticles.registerParticles();
 
         ModCriteria.registerCriteria();
+        ModPlacedFeatures.registerPlacedFeatures();
+
+        DuckMod.registerReceivers();
     }
 
-    public static void registerModConfig() {
+    private static void registerModConfig() {
         CONFIG = new ModConfig(MOD_ID + ".config.json", createDefaultConfig());
         CONFIG.load();
 
-        DuckMod.LOGGER.info("Loading Config for " + MOD_ID);
+        LOGGER.info("Loading Config for " + MOD_ID);
     }
 
     private static JsonObject createDefaultConfig() {
@@ -70,6 +78,37 @@ public class DuckMod implements ModInitializer {
 
         rootObject.add("duck", duck);
 
+        rootObject.addProperty("enable_item_groups", true);
+        rootObject.addProperty("enable_gliding", true);
+
         return rootObject;
+    }
+
+    private static void registerReceivers() {
+        ServerPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.DUCK_GLIDE_ID, (server, player, handler, buf, responseSender) -> {
+            boolean gliding = buf.readBoolean();
+
+            server.execute(() -> {
+                PlayerMixinAccessor playerMixinAccessor = (PlayerMixinAccessor) player;
+
+                playerMixinAccessor.setGliding(gliding);
+            });
+        });
+
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            PlayerMixinAccessor playerMixinAccessor = (PlayerMixinAccessor) handler.player;
+
+            PacketByteBuf buf = PacketByteBufs.create();
+            if(!KeyBindConstants.ENABLE_GLIDING) {
+                playerMixinAccessor.setGliding(false);
+            }
+            buf.writeBoolean(playerMixinAccessor.isGliding());
+
+            ServerPlayNetworking.send(handler.player, ModNetworkingConstants.DUCK_GLIDE_ID, buf);
+        });
+    }
+
+    private static void registerConstants() {
+        KeyBindConstants.registerConstants();
     }
 }

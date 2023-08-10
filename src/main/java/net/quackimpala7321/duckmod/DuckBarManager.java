@@ -5,9 +5,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.ItemStack;
-import net.quackimpala7321.duckmod.entity.custom.DuckEntity;
-import net.quackimpala7321.duckmod.item.ModArmorMaterials;
-import net.quackimpala7321.duckmod.statuseffect.ModStatusEffects;
+import net.quackimpala7321.duckmod.entity.DuckEntity;
+import net.quackimpala7321.duckmod.registry.ModArmorMaterials;
+import net.quackimpala7321.duckmod.registry.ModStatusEffects;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +16,7 @@ public class DuckBarManager {
     public static final int DUCK_LEADER = 2;
     public static final int DUCK_ARMOR = 1;
     private final PlayerEntity player;
+    private boolean canGlide;
 
     private int slots;
 
@@ -50,6 +51,8 @@ public class DuckBarManager {
         } else if (hasDuckLeader) {
             this.slots += DUCK_LEADER;
         }
+
+        this.canGlide = this.getDucks().size() >= DuckEntity.SitPosition.values().length - 1;
     }
 
     public List<DuckEntity> getDucks() {
@@ -63,6 +66,10 @@ public class DuckBarManager {
         }
 
         return  duckEntityList;
+    }
+
+    public boolean canGlide() {
+        return this.canGlide;
     }
 
     public int getSlots() {

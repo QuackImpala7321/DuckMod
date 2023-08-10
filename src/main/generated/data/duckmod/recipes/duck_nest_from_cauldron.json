@@ -1,0 +1,18 @@
+{
+  "type": "crm:cauldron",
+  "experience": 30,
+  "ingredients": [
+    {
+      "count": 5,
+      "item": "minecraft:stick"
+    },
+    {
+      "count": 3,
+      "item": "duckmod:duck_egg"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "duckmod:duck_nest"
+  }
+}

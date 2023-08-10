@@ -3,6 +3,7 @@
   "values": [
     "duckmod:duck_block",
     "duckmod:duck_ore",
+    "duckmod:deepslate_duck_ore",
     "duckmod:egg_incubator"
   ]
 }

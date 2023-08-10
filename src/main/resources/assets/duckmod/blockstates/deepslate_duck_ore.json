@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "duckmod:block/deepslate_duck_ore"
+    }
+  }
+}

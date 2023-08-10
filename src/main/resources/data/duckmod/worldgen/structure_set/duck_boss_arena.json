@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "duckmod:duck_boss_arena",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 463790685,
+    "spacing": 20,
+    "separation": 10
+  }
+}

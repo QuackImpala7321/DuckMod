@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "duckmod:block/deepslate_duck_ore"
+  }
+}

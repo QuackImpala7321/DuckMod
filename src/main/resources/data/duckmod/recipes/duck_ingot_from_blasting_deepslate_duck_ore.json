@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 0.7,
+  "group": "duck_ingot",
+  "ingredient": {
+    "item": "duckmod:deepslate_duck_ore"
+  },
+  "result": "duckmod:duck_ingot"
+}

@@ -9,25 +9,11 @@
       "apply": {
         "model": "duckmod:block/incubated_egg"
       },
-      "when": {
-        "egg": "chicken"
-      }
-    },
-    {
-      "apply": {
-        "model": "duckmod:block/incubated_egg"
-      },
-      "when": {
-        "egg": "duck"
-      }
-    },
-    {
-      "apply": {
-        "model": "duckmod:block/incubated_egg"
-      },
-      "when": {
-        "egg": "duck_boss"
-      }
+      "when": { "OR": [
+        { "egg": "chicken" },
+        { "egg": "duck" },
+        { "egg": "emblem" }
+      ]}
     }
   ]
 }

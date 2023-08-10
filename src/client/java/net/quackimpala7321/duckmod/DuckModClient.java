@@ -4,26 +4,26 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.Block;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.quackimpala7321.duckmod.block.ModBlocks;
-import net.quackimpala7321.duckmod.entity.custom.DuckEntity;
-import net.quackimpala7321.duckmod.entity.renderer.ModEntityRenderers;
-
-import java.util.UUID;
+import net.quackimpala7321.duckmod.registry.ModBlocks;
+import net.quackimpala7321.duckmod.entity.DuckEntity;
+import net.quackimpala7321.duckmod.registry.ModEntityRenderers;
+import net.quackimpala7321.duckmod.registry.ModNetworkingConstants;
 
 public class DuckModClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        renderBlocks();
+        DuckModClient.renderBlocks();
         ModEntityRenderers.registerModEntityRenderers();
         ClientModParticles.registerClientParticles();
 
-        ClientPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.DUCK_MOUNT_TOGGLE_ID, ((client, handler, buf, responseSender) -> {
+        ClientModKeyBinds.registerKeyBinds();
+        DuckModClient.registerReceivers();
+    }
+
+    private static void registerReceivers() {
+        // Duck mounts on player
+        ClientPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.DUCK_MOUNT_TOGGLE_ID, (client, handler, buf, responseSender) -> {
             int id = buf.readInt();
             boolean mount = buf.readBoolean();
 
@@ -39,14 +39,25 @@ public class DuckModClient implements ClientModInitializer {
                     duckEntity.dismountOwner();
                 }
             });
-        }));
+        });
+
+        // Set gliding
+        ClientPlayNetworking.registerGlobalReceiver(ModNetworkingConstants.DUCK_GLIDE_ID, (client, handler, buf, responseSender) -> {
+            boolean gliding = buf.readBoolean();
+
+            client.execute(() -> {
+                PlayerMixinAccessor playerMixinAccessor = (PlayerMixinAccessor) client.player;
+
+                playerMixinAccessor.setGliding(gliding);
+            });
+        });
     }
 
-    private void renderBlocks() {
+    private static void renderBlocks() {
         renderBlock(ModBlocks.EGG_INCUBATOR, RenderLayer.getTranslucent());
     }
 
-    private void renderBlock(Block block, RenderLayer renderLayer) {
+    private static void renderBlock(Block block, RenderLayer renderLayer) {
         BlockRenderLayerMap.INSTANCE.putBlock(block, renderLayer);
     }
 }

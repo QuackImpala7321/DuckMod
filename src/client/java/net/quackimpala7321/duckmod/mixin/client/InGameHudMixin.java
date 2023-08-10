@@ -9,8 +9,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.quackimpala7321.duckmod.DuckBarManager;
 import net.quackimpala7321.duckmod.DuckMod;
-import net.quackimpala7321.duckmod.entity.custom.DuckEntity;
-import net.quackimpala7321.duckmod.DuckBarManagerAccessor;
+import net.quackimpala7321.duckmod.PlayerMixinAccessor;
+import net.quackimpala7321.duckmod.util.KeyBindConstants;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,24 +28,22 @@ public abstract class InGameHudMixin{
 
     @Inject(method = "renderStatusBars", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V", ordinal = 2, shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
     public void renderStatusBarsMixin(DrawContext context, CallbackInfo ci, PlayerEntity playerEntity, int ceilingHealth, boolean bl, long l, int j, HungerManager hungerManager, int k, int left, int right, int bottom, float f, int p, int q, int regenIndex, int armorHeight, int airHeight, int playerArmor, int v, LivingEntity livingEntity, int x) {
-        if(!(playerEntity instanceof DuckBarManagerAccessor)) return;
-
-        DuckBarManager duckBarManager = ((DuckBarManagerAccessor) playerEntity).getDuckBarManager();
+        PlayerMixinAccessor playerMixinAccessor = (PlayerMixinAccessor) playerEntity;
+        DuckBarManager duckBarManager = playerMixinAccessor.getDuckBarManager();
 
         if(duckBarManager.getSlots() <= 0) return;
 
         MinecraftClient client = MinecraftClient.getInstance();
         client.getProfiler().swap(DUCKS);
 
-        int ducks = (int) playerEntity.getPassengerList().stream()
-                .filter(entity -> entity instanceof DuckEntity duckEntity && duckEntity.isAlive() && duckEntity.isOnOwner())
-                .count();
+        int ducks = (int) duckBarManager.getDucks().stream()
+                .filter(LivingEntity::isAlive).count();
 
-        this.renderDuckBar(context, ducks, duckBarManager.getSlots(), left, armorHeight - 9);
+        this.renderDuckBar(context, ducks, duckBarManager.getSlots(), KeyBindConstants.ENABLE_GLIDING && duckBarManager.canGlide(), KeyBindConstants.ENABLE_GLIDING && playerMixinAccessor.isGliding(), left, armorHeight - 9);
     }
 
     @Unique
-    public void renderDuckBar(DrawContext context, int has, int max, int startX, int startY) {
+    public void renderDuckBar(DrawContext context, int has, int max, boolean canGlide, boolean isGliding, int startX, int startY) {
         int x = startX;
 
         for(int i=1; i<=max; i++) {
@@ -57,6 +55,16 @@ public abstract class InGameHudMixin{
                 context.drawTexture(MY_ICONS, x, startY, 8, 0, 8, 8);
             } else {
                 context.drawTexture(MY_ICONS, x, startY, 0, 0, 8, 8);
+            }
+        }
+
+        if(canGlide) {
+            x += 9;
+
+            if(isGliding) {
+                context.drawTexture(MY_ICONS, x, startY, 7, 8, 7, 8);
+            } else {
+                context.drawTexture(MY_ICONS, x, startY, 0, 8, 7, 8);
             }
         }
     }
