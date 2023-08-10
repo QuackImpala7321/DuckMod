@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.client.render.RenderLayer;
+import net.quackimpala7321.duckmod.registry.ClientModParticles;
 import net.quackimpala7321.duckmod.registry.ModBlocks;
 import net.quackimpala7321.duckmod.entity.DuckEntity;
 import net.quackimpala7321.duckmod.registry.ModEntityRenderers;

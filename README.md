@@ -7,3 +7,7 @@ All the duck's attributes are editable in the config located in the config direc
 ## License
 
 MIT License
+
+## Credits
+
+Devourer of Cookies (iateyurcookies) - helped with Duck Boss Arena

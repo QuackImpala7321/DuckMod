@@ -1,6 +1,7 @@
-package net.quackimpala7321.duckmod;
+package net.quackimpala7321.duckmod.registry;
 
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.quackimpala7321.duckmod.DuckSplashParticle;
 import net.quackimpala7321.duckmod.registry.ModParticles;
 
 public class ClientModParticles {

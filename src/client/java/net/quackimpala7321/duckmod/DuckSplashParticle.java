@@ -40,7 +40,7 @@ public class DuckSplashParticle extends SpriteBillboardParticle {
         return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
     }
 
-    static class Factory implements ParticleFactory<DefaultParticleType> {
+    public static class Factory implements ParticleFactory<DefaultParticleType> {
         private final SpriteProvider spriteProvider;
 
         public Factory(SpriteProvider spriteProvider) {
