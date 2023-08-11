@@ -19,10 +19,25 @@ public final class ModSoundEvents {
     public static final Identifier ITEM_ARMOR_EQUIP_DUCK_ID = new Identifier(DuckMod.MOD_ID, "item.armor.equip_duck");
     public static SoundEvent ITEM_ARMOR_EQUIP_DUCK = SoundEvent.of(ITEM_ARMOR_EQUIP_DUCK_ID);
 
+    public static final Identifier DUCK_BOSS_QUACK_ID = new Identifier(DuckMod.MOD_ID, "duck_boss_quack");
+    public static SoundEvent DUCK_BOSS_QUACK = SoundEvent.of(DUCK_BOSS_QUACK_ID);
+
+    public static final Identifier DUCK_BOSS_HURT_ID = new Identifier(DuckMod.MOD_ID, "duck_boss_hurt");
+    public static SoundEvent DUCK_BOSS_HURT = SoundEvent.of(DUCK_BOSS_HURT_ID);
+
+    public static final Identifier DUCK_BOSS_DEATH_ID = new Identifier(DuckMod.MOD_ID, "duck_boss_death");
+    public static SoundEvent DUCK_BOSS_DEATH = SoundEvent.of(DUCK_BOSS_DEATH_ID);
+
     public static void registerSoundEvents() {
-        register(DUCK_QUACK_ID, DUCK_QUACK);
-        register(DUCK_HURT_ID, DUCK_HURT);
-        register(DUCK_DEATH_ID, DUCK_DEATH);
+        ModSoundEvents.register(DUCK_QUACK_ID, DUCK_QUACK);
+        ModSoundEvents.register(DUCK_HURT_ID, DUCK_HURT);
+        ModSoundEvents.register(DUCK_DEATH_ID, DUCK_DEATH);
+
+        ModSoundEvents.register(DUCK_BOSS_QUACK_ID, DUCK_BOSS_QUACK);
+        ModSoundEvents.register(DUCK_BOSS_HURT_ID, DUCK_BOSS_HURT);
+        ModSoundEvents.register(DUCK_BOSS_DEATH_ID, DUCK_BOSS_DEATH);
+
+        ModSoundEvents.register(ITEM_ARMOR_EQUIP_DUCK_ID, ITEM_ARMOR_EQUIP_DUCK);
 
         DuckMod.LOGGER.info("Registering Sound Events for " + DuckMod.MOD_ID);
     }

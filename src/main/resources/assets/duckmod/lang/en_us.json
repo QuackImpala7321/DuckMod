@@ -37,6 +37,10 @@
   "subtitles.duckmod.entity.duck.hurt": "Duck hurts",
   "subtitles.duckmod.entity.duck.death": "Duck dies",
 
+  "subtitles.duckmod.entity.duck_boss.quack": "Duck Boss quacks",
+  "subtitles.duckmod.entity.duck_boss.hurt": "Duck Boss hurts",
+  "subtitles.duckmod.entity.duck_boss.death": "Duck Boss dies",
+
   "subtitles.duckmod.item.armor.equip_duck": "Duck armor quacks",
 
   "advancement.duckmod.duck.title": "No way",

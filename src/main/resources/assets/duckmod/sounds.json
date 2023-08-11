@@ -5,18 +5,35 @@
       "duckmod:duck_quack"
     ]
   },
-
   "duck_hurt": {
     "subtitle": "subtitles.duckmod.entity.duck.hurt",
     "sounds": [
       "duckmod:duck_quack"
     ]
   },
-
   "duck_death": {
     "subtitle": "subtitles.duckmod.entity.duck.death",
     "sounds": [
       "duckmod:duck_death"
+    ]
+  },
+
+  "duck_boss_quack": {
+    "subtitle": "subtitles.duckmod.entity.duck_boss.quack",
+    "sounds": [
+      "duckmod:duck_boss_quack"
+    ]
+  },
+  "duck_boss_hurt": {
+    "subtitle": "subtitles.duckmod.entity.duck_boss.hurt",
+    "sounds": [
+      "duckmod:duck_boss_quack"
+    ]
+  },
+  "duck_boss_death": {
+    "subtitle": "subtitles.duckmod.entity.duck_boss.death",
+    "sounds": [
+      "duckmod:duck_boss_death"
     ]
   },
 
